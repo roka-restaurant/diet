@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="식권인식">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>식권 인식기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0f0f;
+  --bg2:#1a1a1a;
+  --bg3:#242424;
+  --border:#2e2e2e;
+  --text:#f0f0f0;
+  --text2:#888;
+  --text3:#555;
+  --green:#22c55e;
+  --green-bg:rgba(34,197,94,0.12);
+  --green-border:rgba(34,197,94,0.3);
+  --red:#ef4444;
+  --red-bg:rgba(239,68,68,0.12);
+  --red-border:rgba(239,68,68,0.3);
+  --amber:#f59e0b;
+  --amber-bg:rgba(245,158,11,0.12);
+  --amber-border:rgba(245,158,11,0.3);
+  --accent:#22c55e;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden}
+#app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER */
+#header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:env(safe-area-inset-top, 16px) 20px 16px;
+  padding-top:calc(env(safe-area-inset-top, 0px) + 16px);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  background:var(--bg);
+}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--green-bg);border:1px solid var(--green-border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;
+}
+.header-title{font-size:16px;font-weight:700;letter-spacing:-0.3px}
+.header-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.live-dot{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--text2);font-family:'DM Mono',monospace;
+}
+.live-dot::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* CAMERA VIEW */
+#scanner-screen{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#video-container{
+  position:relative;flex:1;background:#000;overflow:hidden;
+  min-height:0;
+}
+#video{width:100%;height:100%;object-fit:cover;display:block}
+#overlay{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+#scan-area{
+  position:relative;
+  width:min(75vw, 340px);
+  aspect-ratio:3/2;
+}
+.corner{position:absolute;width:22px;height:22px;}
+.corner-tl{top:0;left:0;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:3px 0 0 0}
+.corner-tr{top:0;right:0;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 3px 0 0}
+.corner-bl{bottom:0;left:0;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 3px}
+.corner-br{bottom:0;right:0;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 3px 0}
+#scan-line{
+  position:absolute;left:4px;right:4px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  top:0;
+  animation:scanLine 2.5s ease-in-out infinite;
+}
+@keyframes scanLine{
+  0%{top:4px;opacity:0}
+  10%{opacity:1}
+  90%{opacity:1}
+  100%{top:calc(100% - 4px);opacity:0}
+}
+#scan-dim{
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0.5);
+}
+#scan-hint-text{
+  position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  font-size:12px;color:rgba(255,255,255,0.7);
+  background:rgba(0,0,0,0.6);padding:6px 14px;border-radius:20px;
+  white-space:nowrap;font-family:'DM Mono',monospace;letter-spacing:0.3px;
+}
+#no-camera{
+  position:absolute;inset:0;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  color:var(--text2);font-size:13px;background:#000;
+}
+#canvas{display:none}
+
+/* BOTTOM CONTROLS */
+#controls{
+  padding:16px 20px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  background:var(--bg);border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+#btn-row{display:flex;gap:10px;margin-bottom:10px}
+.btn{
+  flex:1;padding:14px 10px;border:none;border-radius:12px;
+  font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:500;
+  cursor:pointer;transition:transform 0.1s,opacity 0.1s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn:active{transform:scale(0.97);opacity:0.85}
+.btn:disabled{opacity:0.35;cursor:not-allowed;transform:none}
+#btn-capture{
+  background:var(--green);color:#000;font-weight:700;
+  flex:2;font-size:15px;
+}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn-upload{position:relative;overflow:hidden}
+#file-input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
+#stats-row{display:flex;gap:8px}
+.stat-chip{
+  flex:1;padding:8px 10px;border-radius:8px;
+  background:var(--bg2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.stat-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:0.5px}
+.stat-val{font-size:14px;font-weight:700;font-family:'DM Mono',monospace}
+.stat-green{color:var(--green)}
+.stat-red{color:var(--red)}
+.stat-amber{color:var(--amber)}
+
+/* RESULT OVERLAY */
+#result-overlay{
+  position:fixed;inset:0;z-index:100;
+  display:none;align-items:flex-end;justify-content:center;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+#result-sheet{
+  width:100%;max-width:520px;
+  background:var(--bg2);
+  border-radius:24px 24px 0 0;
+  border-top:1px solid var(--border);
+  padding:0 0 calc(env(safe-area-inset-bottom, 0px) + 20px);
+  transform:translateY(100%);
+  transition:transform 0.35s cubic-bezier(0.32,0.72,0,1);
+  max-height:85vh;overflow-y:auto;
+}
+#result-sheet.open{transform:translateY(0)}
+.sheet-handle{
+  width:36px;height:4px;background:var(--border);border-radius:2px;
+  margin:12px auto 0;
+}
+#result-icon-wrap{
+  text-align:center;padding:24px 20px 16px;
+}
+#result-icon{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;font-size:32px;
+  transition:background 0.3s;
+}
+#result-status{font-size:22px;font-weight:700;letter-spacing:-0.5px}
+#result-message{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
+#result-info{padding:0 20px 16px}
+.info-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:12px;color:var(--text2)}
+.info-val{font-size:13px;font-weight:500;font-family:'DM Mono',monospace;text-align:right;max-width:60%}
+#btn-close{
+  margin:0 20px;width:calc(100% - 40px);
+  padding:14px;background:var(--bg3);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;font-size:15px;font-weight:500;
+  cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+  transition:background 0.15s;
+}
+#btn-close:active{background:#2e2e2e}
+
+/* ANALYZING */
+#analyzing-overlay{
+  position:fixed;inset:0;z-index:90;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:16px;
+  background:rgba(0,0,0,0.85);
+}
+.ring{
+  width:56px;height:56px;border-radius:50%;
+  border:3px solid var(--border);border-top-color:var(--green);
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#analyzing-text{font-size:14px;color:var(--text2)}
+
+/* HISTORY PANEL */
+#history-overlay{
+  position:fixed;inset:0;z-index:100;display:none;
+  background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+#history-sheet{
+  position:absolute;inset:0;
+  background:var(--bg);
+  padding-top:calc(env(safe-area-inset-top, 0px) + 16px);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+#history-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px 16px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+#history-header h2{font-size:16px;font-weight:700}
+#btn-close-history{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);padding:6px 14px;border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+}
+#history-filter{display:flex;gap:8px;padding:12px 20px;flex-shrink:0}
+.filter-btn{
+  padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;
+  background:var(--bg3);border:1px solid var(--border);color:var(--text2);
+  cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.15s;
+}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#000}
+#history-list{flex:1;overflow-y:auto;padding:0 20px 20px}
+.hist-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.hist-item:last-child{border-bottom:none}
+.hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.hist-dot-ok{background:var(--green)}
+.hist-dot-dup{background:var(--red)}
+.hist-dot-fail{background:var(--amber)}
+.hist-body{flex:1;min-width:0}
+.hist-id{font-size:13px;font-weight:500;font-family:'DM Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.hist-tag{
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;
+  font-family:'DM Mono',monospace;letter-spacing:0.5px;flex-shrink:0;
+}
+.tag-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.tag-dup{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.tag-fail{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+#history-empty{text-align:center;color:var(--text3);font-size:13px;padding:40px 0}
+
+/* TOAST */
+#toast{
+  position:fixed;top:calc(env(safe-area-inset-top,0px)+70px);left:50%;transform:translateX(-50%) translateY(-20px);
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  padding:10px 20px;border-radius:10px;font-size:13px;
+  opacity:0;transition:all 0.25s;z-index:200;white-space:nowrap;
+  pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="header-left">
+      <div class="header-logo">🎫</div>
+      <div>
+        <div class="header-title">식권 인식기</div>
+        <div class="header-sub">Meal Ticket Scanner</div>
+      </div>
+    </div>
+    <div class="live-dot">LIVE</div>
+  </div>
+
+  <div id="scanner-screen">
+    <div id="video-container">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas"></canvas>
+      <div id="overlay">
+        <div id="scan-dim"></div>
+        <div id="scan-area">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div id="scan-line"></div>
+        </div>
+      </div>
+      <div id="scan-hint-text">식권 화면을 프레임 안에 맞춰주세요</div>
+      <div id="no-camera">
+        <span style="font-size:36px">📷</span>
+        카메라를 사용할 수 없습니다<br>이미지 업로드를 이용해주세요
+      </div>
+    </div>
+
+    <div id="controls">
+      <div id="btn-row">
+        <button class="btn" id="btn-capture">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="4"/><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.66-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          촬영 인식
+        </button>
+        <button class="btn btn-secondary btn-upload">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          업로드
+          <input type="file" id="file-input" accept="image/*">
+        </button>
+        <button class="btn btn-secondary" id="btn-history">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M3 9h18M9 21V9"/></svg>
+          기록
+        </button>
+      </div>
+      <div id="stats-row">
+        <div class="stat-chip">
+          <span class="stat-label">승인</span>
+          <span class="stat-val stat-green" id="count-ok">0</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">중복</span>
+          <span class="stat-val stat-red" id="count-dup">0</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">오류</span>
+          <span class="stat-val stat-amber" id="count-fail">0</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-label">합계</span>
+          <span class="stat-val" id="count-total">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Analyzing Overlay -->
+<div id="analyzing-overlay">
+  <div class="ring"></div>
+  <div id="analyzing-text">AI가 식권을 분석 중...</div>
+</div>
+
+<!-- Result Bottom Sheet -->
+<div id="result-overlay">
+  <div id="result-sheet">
+    <div class="sheet-handle"></div>
+    <div id="result-icon-wrap">
+      <div id="result-icon"></div>
+      <div id="result-status"></div>
+      <div id="result-message"></div>
+    </div>
+    <div id="result-info"></div>
+    <button id="btn-close">다음 식권 인식하기</button>
+  </div>
+</div>
+
+<!-- History Panel -->
+<div id="history-overlay">
+  <div id="history-sheet">
+    <div id="history-header">
+      <h2>인식 기록</h2>
+      <button id="btn-close-history">닫기</button>
+    </div>
+    <div id="history-filter">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="ok">승인</button>
+      <button class="filter-btn" data-filter="dup">중복</button>
+      <button class="filter-btn" data-filter="fail">오류</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── State ────────────────────────────────────────────
+const usedOrders = new Set();
+let history = JSON.parse(localStorage.getItem('ticket_history') || '[]');
+let stats = JSON.parse(localStorage.getItem('ticket_stats') || '{"ok":0,"dup":0,"fail":0}');
+let currentFilter = 'all';
+let stream = null;
+
+// ── DOM refs ─────────────────────────────────────────
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const btnCapture = document.getElementById('btn-capture');
+const fileInput = document.getElementById('file-input');
+const analyzingOverlay = document.getElementById('analyzing-overlay');
+const resultOverlay = document.getElementById('result-overlay');
+const resultSheet = document.getElementById('result-sheet');
+const historyOverlay = document.getElementById('history-overlay');
+const noCam = document.getElementById('no-camera');
+const toast = document.getElementById('toast');
+
+// ── Camera ───────────────────────────────────────────
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      }
+    });
+    video.srcObject = stream;
+    btnCapture.disabled = false;
+  } catch(e) {
+    noCam.style.display = 'flex';
+    video.style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('scan-hint-text').style.display = 'none';
+    btnCapture.disabled = true;
+    showToast('카메라 권한이 필요합니다');
+  }
+}
+startCamera();
+
+// ── Capture ──────────────────────────────────────────
+btnCapture.addEventListener('click', () => {
+  if (!stream) return;
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  analyzeImage(canvas.toDataURL('image/jpeg', 0.9));
+});
+
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => analyzeImage(ev.target.result);
+  reader.readAsDataURL(file);
+  fileInput.value = '';
+});
+
+// ── AI Analysis ──────────────────────────────────────
+async function analyzeImage(dataUrl) {
+  const base64 = dataUrl.split(',')[1];
+  const mediaType = dataUrl.includes('png') ? 'image/png' : 'image/jpeg';
+
+  analyzingOverlay.style.display = 'flex';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: base64 }
+            },
+            {
+              type: 'text',
+              text: `이 이미지는 사내 식권 구매 화면입니다. 분석 후 아래 JSON 형식으로만 응답하세요. JSON 외 텍스트 절대 금지.
+
+{
+  "is_meal_ticket": true/false,
+  "order_id": "주문/결제번호 (없으면 null)",
+  "purchase_date": "YYYY-MM-DD (없으면 null)",
+  "purchase_time": "HH:MM (없으면 null)",
+  "amount": "금액 숫자만 (없으면 null)",
+  "ticket_type": "식권 종류 (없으면 null)",
+  "buyer_name": "구매자명 (없으면 null)",
+  "reason": "식권이 아닌 경우 이유 (없으면 null)"
+}`
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await resp.json();
+    const text = (data.content || []).map(b => b.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    analyzingOverlay.style.display = 'none';
+    showResult(parsed);
+  } catch(e) {
+    analyzingOverlay.style.display = 'none';
+    showToast('분석 오류: 네트워크를 확인하세요');
+    recordHistory(null, 'fail', null);
+  }
+}
+
+// ── Show Result ──────────────────────────────────────
+function showResult(info) {
+  const now = new Date();
+  const timeStr = now.toTimeString().slice(0,5);
+  const dateStr = now.toLocaleDateString('ko-KR');
+
+  const icon = document.getElementById('result-icon');
+  const status = document.getElementById('result-status');
+  const message = document.getElementById('result-message');
+  const infoDiv = document.getElementById('result-info');
+
+  let type;
+
+  if (!info.is_meal_ticket) {
+    type = 'fail';
+    icon.style.cssText = 'width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;background:rgba(245,158,11,0.15);border:2px solid rgba(245,158,11,0.4)';
+    icon.textContent = '⚠';
+    status.style.color = '#f59e0b';
+    status.textContent = '식권 인식 실패';
+    message.textContent = info.reason || '올바른 식권 화면을 보여주세요';
+
+  } else if (info.order_id && usedOrders.has(info.order_id)) {
+    type = 'dup';
+    icon.style.cssText = 'width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;background:rgba(239,68,68,0.15);border:2px solid rgba(239,68,68,0.4)';
+    icon.textContent = '✕';
+    status.style.color = '#ef4444';
+    status.textContent = '이미 사용된 식권';
+    message.textContent = '동일한 주문번호로 이미 승인되었습니다';
+
+  } else {
+    type = 'ok';
+    if (info.order_id) usedOrders.add(info.order_id);
+    icon.style.cssText = 'width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;background:rgba(34,197,94,0.15);border:2px solid rgba(34,197,94,0.4)';
+    icon.textContent = '✓';
+    status.style.color = '#22c55e';
+    status.textContent = '식권 확인 완료';
+    message.textContent = `${dateStr} ${timeStr} 승인`;
+  }
+
+  // Info rows
+  const rows = [];
+  if (info.order_id) rows.push(['주문번호', info.order_id]);
+  if (info.purchase_date) rows.push(['구매 날짜', info.purchase_date]);
+  if (info.purchase_time) rows.push(['구매 시간', info.purchase_time]);
+  if (info.amount) rows.push(['금액', parseInt(info.amount).toLocaleString('ko-KR') + '원']);
+  if (info.ticket_type) rows.push(['식권 종류', info.ticket_type]);
+  if (info.buyer_name) rows.push(['구매자', info.buyer_name]);
+
+  infoDiv.innerHTML = rows.length ? `
+    <div style="padding:0 20px 16px">
+      ${rows.map(([k,v]) => `
+        <div class="info-row">
+          <span class="info-key">${k}</span>
+          <span class="info-val">${v}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  recordHistory(info.order_id, type, info);
+  updateStats(type);
+  openResultSheet();
+}
+
+// ── Result Sheet ─────────────────────────────────────
+function openResultSheet() {
+  resultOverlay.style.display = 'flex';
+  requestAnimationFrame(() => resultSheet.classList.add('open'));
+}
+function closeResultSheet() {
+  resultSheet.classList.remove('open');
+  setTimeout(() => { resultOverlay.style.display = 'none'; }, 350);
+}
+
+document.getElementById('btn-close').addEventListener('click', closeResultSheet);
+resultOverlay.addEventListener('click', e => { if (e.target === resultOverlay) closeResultSheet(); });
+
+// ── History ──────────────────────────────────────────
+function recordHistory(orderId, status, info) {
+  const now = new Date();
+  const entry = {
+    id: Date.now(),
+    orderId: orderId || '-',
+    status,
+    time: now.toTimeString().slice(0,5),
+    date: now.toLocaleDateString('ko-KR'),
+    amount: info?.amount ? parseInt(info.amount).toLocaleString('ko-KR') + '원' : null,
+    ticketType: info?.ticket_type || null,
+  };
+  history.unshift(entry);
+  if (history.length > 200) history = history.slice(0, 200);
+  localStorage.setItem('ticket_history', JSON.stringify(history));
+}
+
+function updateStats(type) {
+  stats[type] = (stats[type] || 0) + 1;
+  localStorage.setItem('ticket_stats', JSON.stringify(stats));
+  renderStats();
+}
+
+function renderStats() {
+  document.getElementById('count-ok').textContent = stats.ok || 0;
+  document.getElementById('count-dup').textContent = stats.dup || 0;
+  document.getElementById('count-fail').textContent = stats.fail || 0;
+  document.getElementById('count-total').textContent = (stats.ok||0) + (stats.dup||0) + (stats.fail||0);
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const filtered = currentFilter === 'all' ? history : history.filter(h => h.status === currentFilter);
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div id="history-empty">인식 기록이 없습니다</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(h => `
+    <div class="hist-item">
+      <div class="hist-dot hist-dot-${h.status}"></div>
+      <div class="hist-body">
+        <div class="hist-id">${h.orderId}</div>
+        <div class="hist-meta">${h.date} ${h.time}${h.ticketType ? ' · ' + h.ticketType : ''}${h.amount ? ' · ' + h.amount : ''}</div>
+      </div>
+      <span class="hist-tag tag-${h.status}">${h.status === 'ok' ? 'PASS' : h.status === 'dup' ? 'DUP' : 'FAIL'}</span>
+    </div>
+  `).join('');
+}
+
+document.getElementById('btn-history').addEventListener('click', () => {
+  renderHistory();
+  historyOverlay.style.display = 'block';
+});
+document.getElementById('btn-close-history').addEventListener('click', () => {
+  historyOverlay.style.display = 'none';
+});
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderHistory();
+  });
+});
+
+// ── Toast ────────────────────────────────────────────
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ── Init ─────────────────────────────────────────────
+renderStats();
+
+// Service Worker 등록
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// iOS 홈화면 추가 안내 (첫 방문)
+if (!localStorage.getItem('pwa_hint_shown') && !window.navigator.standalone) {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    setTimeout(() => {
+      showToast('홈화면에 추가하면 앱처럼 사용할 수 있어요 (공유 → 홈화면에 추가)');
+      localStorage.setItem('pwa_hint_shown', '1');
+    }, 2000);
+  }
+}
+</script>
+</body>
+</html>
