@@ -28,8 +28,8 @@
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",sans-serif;overflow:hidden}
 #app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* ═══ SETUP SCREEN ═══ */
-#setup{flex:1;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px)+20px) 20px calc(env(safe-area-inset-bottom,0px)+24px)}
+/* ═══ SETUP ═══ */
+#setup{flex:1;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px)+20px) 20px calc(env(safe-area-inset-bottom,0px)+28px)}
 .s-logo{font-size:44px;margin-bottom:10px}
 .s-title{font-size:26px;font-weight:700;letter-spacing:-.5px}
 .s-sub{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.6;margin-bottom:28px}
@@ -67,111 +67,112 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 .btn-start{width:100%;padding:18px;border:none;border-radius:16px;background:var(--green);color:#000;font-weight:700;font-size:16px;font-family:"Noto Sans KR",sans-serif;cursor:pointer;letter-spacing:-.3px;transition:transform .1s}
 .btn-start:active{transform:scale(.98)}
 
-/* ═══ SCANNER SCREEN ═══ */
+/* ═══ SCANNER ═══ */
 #scanner{flex:1;display:none;flex-direction:column;overflow:hidden}
-
-/* Header */
 #hdr{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px)+12px) 20px 12px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
 .hl{display:flex;align-items:center;gap:10px}
 .hlogo{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.hn{background:var(--green-bg);border:1px solid var(--green-bd)}
-.ht{background:var(--purple-bg);border:1px solid var(--purple-bd)}
+.ln{background:var(--green-bg);border:1px solid var(--green-bd)}
+.lt{background:var(--purple-bg);border:1px solid var(--purple-bd)}
 .htitle{font-size:15px;font-weight:700;letter-spacing:-.3px}
 .hsub{font-size:10px;color:var(--text2);margin-top:1px}
-.hr{display:flex;gap:8px;align-items:center}
+.hr2{display:flex;gap:8px;align-items:center}
 .mbadge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;font-family:"DM Mono",monospace;letter-spacing:.5px}
 .bn{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
 .btp{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
 .ibtn{width:32px;height:32px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer}
 
-/* Camera */
+/* Camera area */
 #vcont{position:relative;flex:1;background:#000;overflow:hidden;min-height:0}
 #video{width:100%;height:100%;object-fit:cover;display:block}
 #canvas{display:none}
+#precanvas{display:none}
 
-/* Scan overlay */
+/* Scan frame overlay */
 #ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 #dim{position:absolute;inset:0;background:rgba(0,0,0,.4)}
-#sbox{position:relative;width:min(80vw,360px);aspect-ratio:3/2;z-index:1}
-.cn{position:absolute;width:26px;height:26px;transition:border-color .3s}
+#sbox{position:relative;width:min(82vw,380px);aspect-ratio:16/10;z-index:1}
+.cn{position:absolute;width:28px;height:28px;transition:border-color .4s}
 .cn-tl{top:0;left:0;border-top:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:3px 0 0 0}
 .cn-tr{top:0;right:0;border-top:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 3px 0 0}
 .cn-bl{bottom:0;left:0;border-bottom:3px solid var(--accent);border-left:3px solid var(--accent);border-radius:0 0 0 3px}
 .cn-br{bottom:0;right:0;border-bottom:3px solid var(--accent);border-right:3px solid var(--accent);border-radius:0 0 3px 0}
-#sline{position:absolute;left:4px;right:4px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);top:4px}
-#sline.scanning{animation:sl 2.2s ease-in-out infinite}
+/* scan line — only shows when actively scanning API */
+#sline{position:absolute;left:4px;right:4px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;top:4px}
+#sline.go{animation:sl 1.8s ease-in-out infinite}
 @keyframes sl{0%{top:4px;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:calc(100% - 6px);opacity:0}}
 
-/* Status pill on camera */
-#status-pill{
-  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
-  font-size:12px;padding:7px 18px;border-radius:24px;white-space:nowrap;
-  font-family:"DM Mono",monospace;letter-spacing:.4px;z-index:2;
-  transition:all .3s;
+/* Red detection indicator — subtle pulse when red seen */
+#redring{
+  position:absolute;inset:0;border:3px solid transparent;border-radius:0;
+  transition:border-color .3s;pointer-events:none;z-index:1;
 }
-.pill-idle{background:rgba(0,0,0,.65);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.1)}
-.pill-scanning{background:rgba(59,130,246,.85);color:#fff;border:1px solid rgba(59,130,246,.5)}
-.pill-found{background:rgba(34,197,94,.9);color:#000;border:none;font-weight:700}
-.pill-dup{background:rgba(239,68,68,.9);color:#fff;border:none;font-weight:700}
-.pill-fail{background:rgba(245,158,11,.85);color:#000;border:none}
+#redring.active{border-color:rgba(239,68,68,.5)}
 
-/* Check indicators inside frame */
-#checks{
-  position:absolute;top:8px;left:50%;transform:translateX(-50%);
-  display:flex;gap:6px;z-index:2;
+/* Status pill */
+#spill{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  font-size:12px;padding:7px 18px;border-radius:24px;
+  font-family:"DM Mono",monospace;letter-spacing:.3px;z-index:2;
+  transition:all .3s;white-space:nowrap;
 }
-.chk{
-  display:flex;align-items:center;gap:4px;
-  padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;
-  font-family:"DM Mono",monospace;letter-spacing:.3px;
-  background:rgba(0,0,0,.7);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);
-  transition:all .3s;
-}
-.chk.ok{background:rgba(34,197,94,.25);color:var(--green);border-color:rgba(34,197,94,.5)}
-.chk-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.p-idle{background:rgba(0,0,0,.65);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.08)}
+.p-red{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
+.p-scan{background:rgba(59,130,246,.85);color:#fff;border:none}
+.p-ok{background:rgba(34,197,94,.9);color:#000;border:none;font-weight:700}
+.p-dup{background:rgba(239,68,68,.9);color:#fff;border:none;font-weight:700}
+.p-fail{background:rgba(245,158,11,.85);color:#000;border:none}
 
-/* Validity banner */
+/* 3-check indicators */
+#checks{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:2}
+.chk{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:12px;font-size:10px;font-weight:700;font-family:"DM Mono",monospace;letter-spacing:.3px;background:rgba(0,0,0,.7);color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.08);transition:all .35s}
+.chk.lit{background:rgba(34,197,94,.2);color:var(--green);border-color:rgba(34,197,94,.45)}
+.chk.lit-red{background:rgba(239,68,68,.2);color:#fca5a5;border-color:rgba(239,68,68,.4)}
+.chkdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* validity banner */
 #vbanner{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:11px;font-family:"DM Mono",monospace;padding:5px 14px;border-radius:20px;white-space:nowrap;z-index:3;display:none}
 .vok{background:rgba(168,85,247,.85);color:#fff}
 .verr{background:rgba(239,68,68,.85);color:#fff}
 
-/* No camera */
+/* No cam */
 #nocam{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--text2);font-size:13px;background:#000;text-align:center}
 
 /* Bottom controls */
 #ctrls{padding:14px 20px calc(env(safe-area-inset-bottom,0px)+14px);background:var(--bg);border-top:1px solid var(--border);flex-shrink:0}
 #ctrl-row{display:flex;gap:10px;margin-bottom:10px}
-.cbtn{flex:1;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--bg3);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .1s,background .15s}
+.cbtn{flex:1;padding:13px 10px;border:1px solid var(--border);border-radius:12px;background:var(--bg3);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .1s,background .15s}
 .cbtn:active{transform:scale(.97)}
-.cbtn-primary{border:none;color:#000;font-weight:700;font-size:15px}
+.cbtn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.cbtn-p{border:none;color:#000;font-weight:700;font-size:15px}
 .cap-n{background:var(--green)}.cap-t{background:var(--purple);color:#fff}
 .cbtn-upl{position:relative;overflow:hidden}
 #finp{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
 #stats{display:flex;gap:8px}
 .sc{flex:1;padding:8px 10px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.sl{font-size:10px;color:var(--text3);font-family:"DM Mono",monospace;letter-spacing:.5px}
+.sl2{font-size:10px;color:var(--text3);font-family:"DM Mono",monospace;letter-spacing:.5px}
 .sv{font-size:14px;font-weight:700;font-family:"DM Mono",monospace}
-.sg{color:var(--green)}.sr{color:var(--red)}.sa{color:var(--amber)}
+.sg{color:var(--green)}.sr2{color:var(--red)}.sa{color:var(--amber)}
 
 /* ═══ RESULT SHEET ═══ */
-#rlov{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-#rlsheet{width:100%;max-width:520px;background:var(--bg2);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:0 0 calc(env(safe-area-inset-bottom,0px)+20px);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:88vh;overflow-y:auto}
-#rlsheet.open{transform:translateY(0)}
+#rlov{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#rlsh{width:100%;max-width:520px;background:var(--bg2);border-radius:24px 24px 0 0;border-top:1px solid var(--border);padding:0 0 calc(env(safe-area-inset-bottom,0px)+20px);transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:88vh;overflow-y:auto}
+#rlsh.open{transform:translateY(0)}
 .shdl{width:36px;height:4px;background:var(--border);border-radius:2px;margin:12px auto 0}
-#rlicon-w{text-align:center;padding:24px 20px 16px}
-#rlicon{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px}
-#rlstatus{font-size:24px;font-weight:700;letter-spacing:-.5px}
-#rlmsg{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
-#rlinfo{padding:0 20px 16px}
+#rl-icon-w{text-align:center;padding:26px 20px 16px}
+#rl-icon{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:38px}
+#rl-status{font-size:24px;font-weight:700;letter-spacing:-.5px}
+#rl-msg{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
+#rl-info{padding:0 20px 16px}
 .ir{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .ir:last-child{border-bottom:none}
 .ik{font-size:12px;color:var(--text2)}
 .iv{font-size:13px;font-weight:500;font-family:"DM Mono",monospace;text-align:right;max-width:65%;word-break:break-all}
-#rlclose{margin:0 20px;width:calc(100% - 40px);padding:15px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:"Noto Sans KR",sans-serif;transition:background .15s}
-#rlclose:active{background:var(--bg4)}
+#rl-close{margin:4px 20px 0;width:calc(100% - 40px);padding:15px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:"Noto Sans KR",sans-serif}
+#rl-close:active{background:var(--bg4)}
 
-/* ═══ ANALYZING OVERLAY ═══ */
-#anaov{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:rgba(0,0,0,.8)}
+/* ═══ ANALYZING ═══ */
+#anaov{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:rgba(0,0,0,.82)}
 .ring{width:52px;height:52px;border-radius:50%;border:3px solid var(--border);animation:spin .75s linear infinite}
 .rn{border-top-color:var(--green)}.rt{border-top-color:var(--purple)}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -203,28 +204,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 #toast{position:fixed;top:calc(env(safe-area-inset-top,0px)+70px);left:50%;transform:translateX(-50%) translateY(-20px);background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .25s;z-index:200;white-space:nowrap;pointer-events:none}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* flash on approve */
-@keyframes flashGreen{0%,100%{opacity:0}50%{opacity:1}}
-@keyframes flashRed{0%,100%{opacity:0}50%{opacity:1}}
+/* Flash */
+@keyframes fOk{0%,100%{opacity:0}40%{opacity:1}}
+@keyframes fDup{0%,100%{opacity:0}40%{opacity:1}}
 #flash{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0}
-.fok{background:rgba(34,197,94,.25);animation:flashGreen .5s ease}
-.fdup{background:rgba(239,68,68,.25);animation:flashRed .5s ease}
-.ffail{background:rgba(245,158,11,.2);animation:flashRed .5s ease}
+.fok{background:rgba(34,197,94,.3);animation:fOk .55s ease}
+.fdup{background:rgba(239,68,68,.3);animation:fDup .55s ease}
+.ffail{background:rgba(245,158,11,.2);animation:fDup .55s ease}
 
-@keyframes rpOk{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}100%{box-shadow:0 0 0 80px rgba(34,197,94,0)}}
-@keyframes rpDup{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}100%{box-shadow:0 0 0 80px rgba(239,68,68,0)}}
-@keyframes rpFail{0%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}100%{box-shadow:0 0 0 80px rgba(245,158,11,0)}}
-.rpok{animation:rpOk .7s ease-out}.rpdup{animation:rpDup .7s ease-out}.rpfail{animation:rpFail .7s ease-out}
+@keyframes rpOk{0%{box-shadow:0 0 0 0 rgba(34,197,94,.7)}100%{box-shadow:0 0 0 90px rgba(34,197,94,0)}}
+@keyframes rpDup{0%{box-shadow:0 0 0 0 rgba(239,68,68,.7)}100%{box-shadow:0 0 0 90px rgba(239,68,68,0)}}
+@keyframes rpFail{0%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}100%{box-shadow:0 0 0 90px rgba(245,158,11,0)}}
+.rpok{animation:rpOk .75s ease-out}.rpdup{animation:rpDup .75s ease-out}.rpfail{animation:rpFail .75s ease-out}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ══════ SETUP SCREEN ══════ -->
+<!-- ══════ SETUP ══════ -->
 <div id="setup">
   <div class="s-logo">🎫</div>
   <div class="s-title">식권 인식기</div>
-  <div class="s-sub">설정을 확인하고 시작해주세요.<br>카메라에 식권을 비추면 자동으로 인식됩니다.</div>
+  <div class="s-sub">직원이 단말기 카메라에 식권 화면을 비추면<br>빨간 "사용완료" 문구를 자동 감지 후 승인합니다.</div>
 
   <div class="sec">
     <div class="sec-lbl">TICKET TYPE</div>
@@ -232,12 +233,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
       <div class="tcard sel-n" id="tcn" onclick="selType('normal')">
         <div class="ticon">🍱</div>
         <div class="tname">일반 식권</div>
-        <div class="tdesc">매일 발급되는 정규 구내식당 식권</div>
+        <div class="tdesc">매일 발급 정규 식권</div>
       </div>
       <div class="tcard" id="tct" onclick="selType('temp')">
         <div class="ticon">⏳</div>
         <div class="tname">한시적 임시식권</div>
-        <div class="tdesc">기간 지정 행사·방문자용 임시 식권</div>
+        <div class="tdesc">기간 지정 행사·방문자용</div>
       </div>
     </div>
     <div id="tmp-opts">
@@ -267,22 +268,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
     <div class="sec-lbl">SETTINGS</div>
     <div class="card">
       <div class="crow">
+        <div class="rico" style="background:var(--red-bg);border:1px solid var(--red-bd)">🔴</div>
+        <div class="rbody">
+          <div class="rtitle">빨간색 자동 감지</div>
+          <div class="rdesc">프레임에서 빨간 픽셀 감지 시에만 AI 분석<br>→ API 호출 70~80% 절감, 반응 속도 향상</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="tred" checked><div class="tog-t"></div><div class="tog-k"></div></label>
+      </div>
+      <div class="crow">
         <div class="rico" style="background:var(--blue-bg);border:1px solid var(--blue-bd)">🔊</div>
-        <div class="rbody"><div class="rtitle">소리 알람</div><div class="rdesc">승인/중복/오류 시 각기 다른 알람음</div></div>
+        <div class="rbody"><div class="rtitle">소리 알람</div><div class="rdesc">승인/중복/오류 각기 다른 알람음</div></div>
         <label class="tog"><input type="checkbox" id="tsnd" checked><div class="tog-t"></div><div class="tog-k"></div></label>
       </div>
       <div class="crow">
         <div class="rico" style="background:var(--amber-bg);border:1px solid var(--amber-bd)">📊</div>
         <div class="rbody"><div class="rtitle">데이터 자동 삭제</div><div class="rdesc">매일 자정 인식 기록 자동 초기화</div></div>
         <label class="tog"><input type="checkbox" id="tclean" checked><div class="tog-t"></div><div class="tog-k"></div></label>
-      </div>
-      <div class="crow">
-        <div class="rico" style="background:var(--green-bg);border:1px solid var(--green-bd)">⏱</div>
-        <div class="rbody"><div class="rtitle">자동 인식 간격</div><div class="rdesc" id="interval-desc">카메라 프레임 분석 주기: 2초</div></div>
-        <div style="display:flex;gap:6px">
-          <span class="chip on" data-iv="2000" onclick="selInterval(this)">2초</span>
-          <span class="chip" data-iv="3000" onclick="selInterval(this)">3초</span>
-        </div>
       </div>
     </div>
   </div>
@@ -292,31 +293,31 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
     <div class="card">
       <div class="crow">
         <div class="rico" style="background:var(--bg3);border:1px solid var(--border)">📅</div>
-        <div class="rbody"><div class="rtitle" id="todaytxt">—</div><div class="rdesc">오늘 유효한 식권만 승인됩니다</div></div>
+        <div class="rbody"><div class="rtitle" id="todaytxt">—</div><div class="rdesc">오늘 날짜 식권만 승인됩니다</div></div>
       </div>
     </div>
   </div>
 
-  <button class="btn-start" onclick="startScanner()">자동 인식 시작하기 →</button>
+  <button class="btn-start" onclick="startScanner()">인식 시작하기 →</button>
 </div>
 
-<!-- ══════ SCANNER SCREEN ══════ -->
+<!-- ══════ SCANNER ══════ -->
 <div id="scanner">
   <div id="hdr">
     <div class="hl">
-      <div class="hlogo hn" id="hlogo">🎫</div>
+      <div class="hlogo ln" id="hlogo">🎫</div>
       <div>
         <div class="htitle" id="htitle">식권 인식기</div>
         <div class="hsub" id="hsub">—</div>
       </div>
     </div>
-    <div class="hr">
+    <div class="hr2">
       <span class="mbadge bn" id="mbadge">AUTO</span>
       <div class="ibtn" onclick="openHist()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><path d="M3 9h18M9 21V9"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/><path d="M3 9h18M9 21V9"/></svg>
       </div>
       <div class="ibtn" onclick="backSetup()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       </div>
     </div>
   </div>
@@ -324,6 +325,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
   <div id="vcont">
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
+    <canvas id="precanvas"></canvas>
     <div id="ov">
       <div id="dim"></div>
       <div id="sbox">
@@ -332,44 +334,52 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
         <div id="sline"></div>
       </div>
     </div>
+    <div id="redring"></div>
     <div id="checks">
-      <div class="chk" id="chk-mark"><div class="chk-dot"></div>사용완료</div>
-      <div class="chk" id="chk-id"><div class="chk-dot"></div>식권ID</div>
-      <div class="chk" id="chk-date"><div class="chk-dot"></div>날짜</div>
+      <div class="chk" id="chk-red"><div class="chkdot"></div>사용완료</div>
+      <div class="chk" id="chk-id"><div class="chkdot"></div>식권ID</div>
+      <div class="chk" id="chk-date"><div class="chkdot"></div>날짜</div>
     </div>
-    <div id="status-pill" class="pill-idle">식권을 카메라에 비춰주세요</div>
+    <div id="spill" class="p-idle">식권 화면을 프레임에 비춰주세요</div>
     <div id="vbanner"></div>
     <div id="nocam">
       <span style="font-size:40px">📷</span>
-      카메라를 사용할 수 없습니다<br>이미지 업로드를 이용해주세요
+      카메라를 사용할 수 없습니다<br>하단 업로드 버튼을 이용해주세요
     </div>
   </div>
 
   <div id="ctrls">
     <div id="ctrl-row">
-      <button class="cbtn cbtn-primary cap-n" id="btnauto" onclick="toggleAuto()">
-        <svg id="auto-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>
-        <span id="auto-txt">자동인식 중지</span>
+      <!-- 자동 인식 ON/OFF -->
+      <button class="cbtn cbtn-p cap-n" id="btnauto" onclick="toggleAuto()">
+        <svg id="aico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>
+        <span id="atxt">자동인식 중지</span>
       </button>
+      <!-- 수동 촬영 (오프라인 대비) -->
+      <button class="cbtn" id="btn-manual" onclick="doManual()" disabled>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.66-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        수동촬영
+      </button>
+      <!-- 이미지 업로드 -->
       <button class="cbtn cbtn-upl">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        이미지<input type="file" id="finp" accept="image/*">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        업로드<input type="file" id="finp" accept="image/*">
       </button>
     </div>
     <div id="stats">
-      <div class="sc"><span class="sl">승인</span><span class="sv sg" id="cok">0</span></div>
-      <div class="sc"><span class="sl">중복</span><span class="sv sr" id="cdup">0</span></div>
-      <div class="sc"><span class="sl">오류</span><span class="sv sa" id="cfail">0</span></div>
-      <div class="sc"><span class="sl">합계</span><span class="sv" id="ctotal">0</span></div>
+      <div class="sc"><span class="sl2">승인</span><span class="sv sg" id="cok">0</span></div>
+      <div class="sc"><span class="sl2">중복</span><span class="sv sr2" id="cdup">0</span></div>
+      <div class="sc"><span class="sl2">오류</span><span class="sv sa" id="cfail">0</span></div>
+      <div class="sc"><span class="sl2">합계</span><span class="sv" id="ctotal">0</span></div>
     </div>
   </div>
 </div>
 </div>
 
-<!-- Analyzing -->
+<!-- Analyzing overlay -->
 <div id="anaov">
   <div class="ring rn" id="anaring"></div>
-  <div id="anatxt">식권 인식 중...</div>
+  <div id="anatxt">식권 분석 중...</div>
 </div>
 
 <!-- Flash -->
@@ -377,15 +387,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 
 <!-- Result Sheet -->
 <div id="rlov">
-  <div id="rlsheet">
+  <div id="rlsh">
     <div class="shdl"></div>
-    <div id="rlicon-w">
-      <div id="rlicon"></div>
-      <div id="rlstatus"></div>
-      <div id="rlmsg"></div>
+    <div id="rl-icon-w">
+      <div id="rl-icon"></div>
+      <div id="rl-status"></div>
+      <div id="rl-msg"></div>
     </div>
-    <div id="rlinfo"></div>
-    <button id="rlclose" onclick="closeRes()">다음 식권 인식하기</button>
+    <div id="rl-info"></div>
+    <button id="rl-close" onclick="closeRes()">다음 식권 인식하기</button>
   </div>
 </div>
 
@@ -407,9 +417,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════
-// AUDIO
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// AUDIO ENGINE
+// ═══════════════════════════════════════════
 let actx = null;
 function getAC() {
   if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
@@ -419,27 +429,27 @@ function getAC() {
 function playOk() {
   try {
     const c = getAC();
-    [[880, 0, .12], [1100, .13, .1], [1320, .24, .2]].forEach(([f, s, d]) => {
+    [[880,0,.1],[1100,.12,.09],[1320,.22,.18]].forEach(([f,s,d]) => {
       const o = c.createOscillator(), g = c.createGain();
       o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0, c.currentTime + s);
-      g.gain.linearRampToValueAtTime(.4, c.currentTime + s + .02);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + s + d);
+      g.gain.setValueAtTime(0, c.currentTime+s);
+      g.gain.linearRampToValueAtTime(.42, c.currentTime+s+.02);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+s+d);
       o.connect(g); g.connect(c.destination);
-      o.start(c.currentTime + s); o.stop(c.currentTime + s + d + .05);
+      o.start(c.currentTime+s); o.stop(c.currentTime+s+d+.05);
     });
   } catch(e) {}
 }
 function playDup() {
   try {
     const c = getAC();
-    [[440, 0, .15], [330, .18, .22]].forEach(([f, s, d]) => {
+    [[440,0,.14],[330,.17,.22]].forEach(([f,s,d]) => {
       const o = c.createOscillator(), g = c.createGain();
       o.type = 'square'; o.frequency.value = f;
-      g.gain.setValueAtTime(.28, c.currentTime + s);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime + s + d);
+      g.gain.setValueAtTime(.28, c.currentTime+s);
+      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+s+d);
       o.connect(g); g.connect(c.destination);
-      o.start(c.currentTime + s); o.stop(c.currentTime + s + d + .05);
+      o.start(c.currentTime+s); o.stop(c.currentTime+s+d+.05);
     });
   } catch(e) {}
 }
@@ -449,28 +459,60 @@ function playFail() {
     const o = c.createOscillator(), g = c.createGain();
     o.type = 'sawtooth'; o.frequency.value = 200;
     g.gain.setValueAtTime(.22, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, c.currentTime + .35);
+    g.gain.exponentialRampToValueAtTime(.001, c.currentTime+.35);
     o.connect(g); g.connect(c.destination);
-    o.start(); o.stop(c.currentTime + .4);
+    o.start(); o.stop(c.currentTime+.4);
   } catch(e) {}
 }
 function snd(t) {
   if (!document.getElementById('tsnd').checked) return;
-  if (t === 'ok') playOk(); else if (t === 'dup') playDup(); else playFail();
+  if (t==='ok') playOk(); else if (t==='dup') playDup(); else playFail();
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// RED PIXEL DETECTOR
+// ═══════════════════════════════════════════
+// Returns ratio of "vivid red" pixels in the frame center crop
+// Vivid red: R > 160, R > G*1.8, R > B*1.8
+function detectRed(videoEl) {
+  try {
+    const pw = 320, ph = 200; // small pre-canvas for speed
+    const pc = document.getElementById('precanvas');
+    pc.width = pw; pc.height = ph;
+    const ctx = pc.getContext('2d');
+    // crop center of video (where frame guide is)
+    const vw = videoEl.videoWidth || 640;
+    const vh = videoEl.videoHeight || 480;
+    const cropW = vw * 0.75, cropH = vh * 0.6;
+    const cropX = (vw - cropW) / 2, cropY = (vh - cropH) / 2;
+    ctx.drawImage(videoEl, cropX, cropY, cropW, cropH, 0, 0, pw, ph);
+    const data = ctx.getImageData(0, 0, pw, ph).data;
+    let redPx = 0;
+    const total = pw * ph;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i+1], b = data[i+2];
+      if (r > 150 && r > g * 1.7 && r > b * 1.7) redPx++;
+    }
+    return redPx / total; // 0.0 ~ 1.0
+  } catch(e) { return 0; }
+}
+
+// ═══════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 let MODE = 'normal', tSlot = 'all', tStart = null, tEnd = null;
-let usedIds = new Set(), scanHist = [], stats = { ok:0, dup:0, fail:0 };
+let usedIds = new Set(), scanHist = [], stats = {ok:0,dup:0,fail:0};
 let vstream = null, cFilter = 'all';
-let autoOn = false, autoTimer = null, analyzing = false;
-let cooldown = false; // prevent rapid re-trigger
-let scanInterval = 2000;
+let autoOn = false, autoTimer = null, analyzing = false, cooldown = false;
 const TODAY = new Date().toISOString().slice(0, 10);
 
-// ── daily clean ───────────────────────────────
+// Red detection state
+let redFrameCount = 0;        // consecutive frames with red detected
+const RED_THRESHOLD = 0.004;  // 0.4% of pixels are vivid red
+const RED_CONFIRM_FRAMES = 2; // need N consecutive red frames before API call
+let previewTimer = null;
+
+// ── Daily clean ─────────────────────────────
 function dailyClean() {
   const d = localStorage.getItem('sc_date');
   if (d !== TODAY) {
@@ -486,10 +528,10 @@ dailyClean();
 
 function scheduleMidnight() {
   const n = new Date();
-  const ms = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1) - n;
+  const ms = new Date(n.getFullYear(), n.getMonth(), n.getDate()+1) - n;
   setTimeout(() => {
     if (document.getElementById('tclean').checked) {
-      scanHist = []; stats = { ok:0, dup:0, fail:0 }; usedIds = new Set();
+      scanHist = []; stats = {ok:0,dup:0,fail:0}; usedIds = new Set();
       saveAll(); renderStats(); showToast('자정이 지나 인식 데이터가 초기화되었습니다');
     }
     scheduleMidnight();
@@ -504,29 +546,24 @@ function saveAll() {
   localStorage.setItem('sc_date', TODAY);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // SETUP
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 document.getElementById('todaytxt').textContent =
-  new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long' });
+  new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
 document.getElementById('ds').value = TODAY;
-const ed = new Date(); ed.setDate(ed.getDate() + 7);
-document.getElementById('de').value = ed.toISOString().slice(0, 10);
+const ed = new Date(); ed.setDate(ed.getDate()+7);
+document.getElementById('de').value = ed.toISOString().slice(0,10);
 
 function selType(t) {
   MODE = t;
-  document.getElementById('tcn').className = 'tcard' + (t === 'normal' ? ' sel-n' : '');
-  document.getElementById('tct').className = 'tcard' + (t === 'temp' ? ' sel-t' : '');
-  document.getElementById('tmp-opts').style.display = t === 'temp' ? 'block' : 'none';
+  document.getElementById('tcn').className = 'tcard' + (t==='normal' ? ' sel-n' : '');
+  document.getElementById('tct').className = 'tcard' + (t==='temp' ? ' sel-t' : '');
+  document.getElementById('tmp-opts').style.display = t==='temp' ? 'block' : 'none';
 }
 function selTime(el) {
   document.querySelectorAll('.chip[data-t]').forEach(c => c.classList.remove('on'));
   el.classList.add('on'); tSlot = el.dataset.t;
-}
-function selInterval(el) {
-  document.querySelectorAll('.chip[data-iv]').forEach(c => c.classList.remove('on'));
-  el.classList.add('on'); scanInterval = parseInt(el.dataset.iv);
-  document.getElementById('interval-desc').textContent = `카메라 프레임 분석 주기: ${scanInterval/1000}초`;
 }
 
 function startScanner() {
@@ -537,15 +574,13 @@ function startScanner() {
   }
   const isT = MODE === 'temp';
   document.documentElement.style.setProperty('--accent', isT ? 'var(--purple)' : 'var(--green)');
-  document.getElementById('hlogo').className = 'hlogo ' + (isT ? 'ht' : 'hn');
+  document.getElementById('hlogo').className = 'hlogo ' + (isT ? 'lt' : 'ln');
   document.getElementById('htitle').textContent = isT ? '임시 식권 인식기' : '식권 인식기';
   document.getElementById('hsub').textContent = isT ? `유효: ${tStart} ~ ${tEnd}` : `오늘: ${TODAY}`;
   document.getElementById('mbadge').className = 'mbadge ' + (isT ? 'btp' : 'bn');
-  document.getElementById('mbadge').textContent = isT ? 'TEMP·AUTO' : 'AUTO';
+  document.getElementById('mbadge').textContent = isT ? 'TEMP' : 'AUTO';
+  document.getElementById('btnauto').className = 'cbtn cbtn-p ' + (isT ? 'cap-t' : 'cap-n');
   document.getElementById('anaring').className = 'ring ' + (isT ? 'rt' : 'rn');
-  const btn = document.getElementById('btnauto');
-  btn.className = 'cbtn cbtn-primary ' + (isT ? 'cap-t' : 'cap-n');
-
   if (isT) {
     const b = document.getElementById('vbanner');
     const inRange = TODAY >= tStart && TODAY <= tEnd;
@@ -553,95 +588,139 @@ function startScanner() {
     b.className = inRange ? 'vok' : 'verr';
     b.style.display = 'block';
   }
-
   document.getElementById('setup').style.display = 'none';
   document.getElementById('scanner').style.display = 'flex';
   renderStats();
   initCam();
 }
-
 function backSetup() {
   stopAuto();
   if (vstream) { vstream.getTracks().forEach(t => t.stop()); vstream = null; }
   document.getElementById('scanner').style.display = 'none';
   document.getElementById('setup').style.display = 'block';
-  resetChecks();
+  resetUI();
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // CAMERA
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 
 async function initCam() {
   try {
     vstream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+      video: { facingMode: {ideal:'environment'}, width: {ideal:1920}, height: {ideal:1080} }
     });
     video.srcObject = vstream;
-    video.onloadedmetadata = () => { startAuto(); };
+    video.onloadedmetadata = () => {
+      document.getElementById('btn-manual').disabled = false;
+      startAuto();
+    };
   } catch(e) {
     document.getElementById('nocam').style.display = 'flex';
     video.style.display = 'none';
     document.getElementById('ov').style.display = 'none';
+    document.getElementById('redring').style.display = 'none';
     document.getElementById('checks').style.display = 'none';
-    document.getElementById('status-pill').style.display = 'none';
+    document.getElementById('spill').style.display = 'none';
     showToast('카메라 권한이 필요합니다');
   }
 }
 
-function captureFrame() {
-  if (!vstream || video.readyState < 2) return null;
+function captureHQ() {
   canvas.width = video.videoWidth || 1280;
   canvas.height = video.videoHeight || 720;
   canvas.getContext('2d').drawImage(video, 0, 0);
-  return canvas.toDataURL('image/jpeg', 0.85);
+  return canvas.toDataURL('image/jpeg', 0.88);
 }
 
-// ═══════════════════════════════════════════════
-// AUTO SCAN LOOP
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
+// AUTO SCAN LOOP  (RED-GATED)
+// ═══════════════════════════════════════════
 function startAuto() {
-  autoOn = true;
-  updateAutoBtn();
-  setPill('scanning', '분석 중...');
-  document.getElementById('sline').classList.add('scanning');
-  scheduleNext();
+  autoOn = true; updateAutoBtn();
+  setPill('idle', '식권 화면을 프레임에 비춰주세요');
+  document.getElementById('sline').classList.remove('go');
+  runPreview(); // start lightweight preview loop
 }
 function stopAuto() {
-  autoOn = false;
-  clearTimeout(autoTimer);
-  updateAutoBtn();
+  autoOn = false; updateAutoBtn();
+  clearTimeout(previewTimer);
+  document.getElementById('sline').classList.remove('go');
   setPill('idle', '자동 인식이 중지되었습니다');
-  document.getElementById('sline').classList.remove('scanning');
+  document.getElementById('redring').classList.remove('active');
+  redFrameCount = 0;
 }
-function toggleAuto() {
-  if (autoOn) stopAuto(); else startAuto();
-}
+function toggleAuto() { if (autoOn) stopAuto(); else startAuto(); }
 function updateAutoBtn() {
-  const icon = document.getElementById('auto-icon');
-  const txt = document.getElementById('auto-txt');
+  const ico = document.getElementById('aico'), txt = document.getElementById('atxt');
   if (autoOn) {
-    icon.innerHTML = '<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/>';
+    ico.innerHTML = '<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/>';
     txt.textContent = '자동인식 중지';
   } else {
-    icon.innerHTML = '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>';
+    ico.innerHTML = '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>';
     txt.textContent = '자동인식 시작';
   }
 }
-function scheduleNext() {
+
+// Lightweight preview loop — runs every 300ms, only checks red pixels (no API)
+function runPreview() {
   if (!autoOn) return;
-  autoTimer = setTimeout(async () => {
-    if (!autoOn || analyzing || cooldown) { scheduleNext(); return; }
-    const frame = captureFrame();
-    if (!frame) { scheduleNext(); return; }
-    await doAnalyze(frame);
-    scheduleNext();
-  }, scanInterval);
+  previewTimer = setTimeout(() => {
+    if (!autoOn || analyzing || cooldown) { runPreview(); return; }
+    if (!vstream || video.readyState < 2) { runPreview(); return; }
+
+    const useRedGate = document.getElementById('tred').checked;
+
+    if (useRedGate) {
+      const ratio = detectRed(video);
+      if (ratio >= RED_THRESHOLD) {
+        redFrameCount++;
+        document.getElementById('redring').classList.add('active');
+        setChk('chk-red', true, true); // light up red indicator
+        if (redFrameCount >= RED_CONFIRM_FRAMES) {
+          // Red confirmed — fire API
+          redFrameCount = 0;
+          setPill('scan', '빨간 문구 감지 → AI 분석 중...');
+          document.getElementById('sline').classList.add('go');
+          doAnalyze(captureHQ(), false);
+        } else {
+          setPill('red', '빨간 문구 감지 중...');
+        }
+      } else {
+        redFrameCount = 0;
+        document.getElementById('redring').classList.remove('active');
+        if (!analyzing) {
+          setPill('idle', '식권 화면을 프레임에 비춰주세요');
+          setChk('chk-red', false);
+          setChk('chk-id', false);
+          setChk('chk-date', false);
+        }
+      }
+    } else {
+      // No red gate — fire API every 2.5s
+      redFrameCount++;
+      if (redFrameCount >= 8) { // 8 * 300ms ≈ 2.5s
+        redFrameCount = 0;
+        setPill('scan', 'AI 분석 중...');
+        document.getElementById('sline').classList.add('go');
+        doAnalyze(captureHQ(), false);
+      }
+    }
+    runPreview();
+  }, 300);
 }
 
-// upload fallback
+// Manual capture button (offline fallback)
+function doManual() {
+  if (!vstream || video.readyState < 2) return;
+  stopAuto();
+  document.getElementById('anaov').style.display = 'flex';
+  doAnalyze(captureHQ(), true);
+}
+
+// File upload
 document.getElementById('finp').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
@@ -649,40 +728,31 @@ document.getElementById('finp').addEventListener('change', e => {
   r.readAsDataURL(f); e.target.value = '';
 });
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // AI ANALYSIS
-// ═══════════════════════════════════════════════
-async function doAnalyze(dataUrl, manual = false) {
+// ═══════════════════════════════════════════
+async function doAnalyze(dataUrl, manual) {
   if (analyzing) return;
   analyzing = true;
-  if (manual) {
-    document.getElementById('anaov').style.display = 'flex';
-    setPill('scanning', '이미지 분석 중...');
-  } else {
-    setPill('scanning', 'AI 분석 중...');
-  }
+  if (manual) document.getElementById('anaov').style.display = 'flex';
 
-  // pre-check temp ticket time slot
+  // temp ticket time-slot pre-check
   if (MODE === 'temp') {
     if (!(TODAY >= tStart && TODAY <= tEnd)) {
-      analyzing = false;
-      snd('fail'); flashScreen('fail');
-      showRes('fail', '임시식권 유효기간 외', `유효기간: ${tStart} ~ ${tEnd}`, []);
-      addHist('-', 'fail', null); updStats('fail');
-      if (manual) document.getElementById('anaov').style.display = 'none';
-      return;
+      finishAnalyze(manual);
+      snd('fail'); flashEl('fail');
+      showRes('fail','임시식권 유효기간 외',`유효기간: ${tStart} ~ ${tEnd}`,[]);
+      addHist('-','fail',null); updStats('fail'); return;
     }
     if (tSlot !== 'all') {
       const h = new Date().getHours();
-      const sl = { breakfast:[7,9], lunch:[11,13], dinner:[17,19] }[tSlot];
+      const sl = {breakfast:[7,9],lunch:[11,13],dinner:[17,19]}[tSlot];
       if (h < sl[0] || h >= sl[1]) {
-        analyzing = false;
-        snd('fail'); flashScreen('fail');
-        const nm = { breakfast:'조식 (07~09시)', lunch:'중식 (11~13시)', dinner:'석식 (17~19시)' };
-        showRes('fail', '사용 가능 시간이 아닙니다', `허용 시간대: ${nm[tSlot]}`, []);
-        addHist('-', 'fail', null); updStats('fail');
-        if (manual) document.getElementById('anaov').style.display = 'none';
-        return;
+        finishAnalyze(manual);
+        snd('fail'); flashEl('fail');
+        const nm = {breakfast:'조식 07~09시',lunch:'중식 11~13시',dinner:'석식 17~19시'};
+        showRes('fail','사용 가능 시간이 아닙니다',`허용 시간대: ${nm[tSlot]}`,[]);
+        addHist('-','fail',null); updStats('fail'); return;
       }
     }
   }
@@ -693,260 +763,245 @@ async function doAnalyze(dataUrl, manual = false) {
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type':'application/json'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
+        max_tokens: 600,
         messages: [{
           role: 'user',
           content: [
-            { type: 'image', source: { type: 'base64', media_type: mt, data: b64 } },
-            { type: 'text', text: `사내 식권 앱 화면 이미지입니다. JSON만 응답하세요. 다른 텍스트 절대 금지.
+            {type:'image', source:{type:'base64', media_type:mt, data:b64}},
+            {type:'text', text:`사내 식권 앱 화면입니다. JSON만 응답. 다른 텍스트 금지.
 
-아래 3가지를 확인하세요:
-1. "사용완료" 또는 동일 의미 문구 → has_used_mark
-2. 개인별 식권 고유 ID → ticket_id  
-3. 식권 날짜 → ticket_date
+확인:
+1. 빨간색 "사용완료" 문구 있는가 → has_used_mark (빨간색이어야 함)
+2. 개인별 식권 고유 ID(숫자/영숫자 코드) → ticket_id
+3. 식권 날짜 → ticket_date (YYYY-MM-DD)
 
-식권 화면이 아니거나(다른 앱/화면/배경) 3가지 중 하나라도 보이지 않으면 is_valid: false.
-
-{"is_valid":true/false,"has_used_mark":true/false,"ticket_id":"고유ID or null","ticket_date":"YYYY-MM-DD or null","ticket_type":"종류 or null","buyer_name":"이름 or null","amount":"숫자만 or null","fail_reason":"실패이유 or null"}` }
+{"is_ticket":true/false,"has_used_mark":true/false,"ticket_id":"ID or null","ticket_date":"YYYY-MM-DD or null","ticket_type":"종류 or null","buyer_name":"이름 or null","amount":"숫자 or null","fail_reason":"이유 or null"}`}
           ]
         }]
       })
     });
-
     const data = await resp.json();
-    const txt = (data.content || []).map(b => b.text || '').join('');
-    const info = JSON.parse(txt.replace(/```json|```/g, '').trim());
-    if (manual) document.getElementById('anaov').style.display = 'none';
+    const txt = (data.content||[]).map(b=>b.text||'').join('');
+    const info = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    finishAnalyze(manual);
     procResult(info, manual);
-
   } catch(err) {
-    if (manual) document.getElementById('anaov').style.display = 'none';
+    finishAnalyze(manual);
     analyzing = false;
-    if (manual) { snd('fail'); showToast('분석 오류: 네트워크 확인'); }
-    else setPill('idle', '분석 오류 — 계속 시도 중...');
-    resetChecks();
+    document.getElementById('sline').classList.remove('go');
+    if (manual) { snd('fail'); showToast('분석 오류: 네트워크를 확인해주세요'); }
+    else setPill('idle', '분석 오류 — 잠시 후 재시도...');
+    resetUI();
+    if (!autoOn && !manual) startAuto();
   }
 }
+function finishAnalyze(manual) {
+  if (manual) document.getElementById('anaov').style.display = 'none';
+  document.getElementById('sline').classList.remove('go');
+}
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // PROCESS RESULT
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function procResult(info, manual) {
   analyzing = false;
 
   // Update check indicators
-  setChk('chk-mark', info.has_used_mark);
+  setChk('chk-red', info.has_used_mark, true);
   setChk('chk-id', !!info.ticket_id);
   setChk('chk-date', !!info.ticket_date);
 
-  const allOk = info.is_valid && info.has_used_mark && info.ticket_id && info.ticket_date;
+  const allOk = info.is_ticket && info.has_used_mark && info.ticket_id && info.ticket_date;
 
   if (!allOk) {
-    // Not a valid ticket — stay silent in auto mode, just show partial state
     if (!manual) {
-      let hint = '식권을 카메라에 비춰주세요';
-      if (info.has_used_mark || info.ticket_id || info.ticket_date) {
+      // Auto mode: silent, show hint only if partially detected
+      if (info.is_ticket) {
         const missing = [];
         if (!info.has_used_mark) missing.push('"사용완료"');
         if (!info.ticket_id) missing.push('식권ID');
         if (!info.ticket_date) missing.push('날짜');
-        hint = `인식 중... ${missing.join('·')} 필요`;
-        setPill('scanning', hint);
+        setPill('scan', `인식 중 — ${missing.join(' · ')} 확인 필요`);
       } else {
-        setPill('idle', '식권을 카메라에 비춰주세요');
-        resetChecks();
+        setPill('idle', '식권 화면을 프레임에 비춰주세요');
+        resetUI();
       }
+      if (!autoOn) startAuto();
       return;
     }
-    // manual upload — show error
+    // Manual: show error
     let r = info.fail_reason || '식권 화면을 인식하지 못했습니다';
-    if (!info.has_used_mark) r = '"사용완료" 문구를 찾을 수 없습니다';
-    else if (!info.ticket_id) r = '식권 ID를 인식하지 못했습니다';
-    else if (!info.ticket_date) r = '식권 날짜를 인식하지 못했습니다';
-    snd('fail'); flashScreen('fail');
+    if (info.is_ticket) {
+      if (!info.has_used_mark) r = '빨간색 "사용완료" 문구를 찾을 수 없습니다';
+      else if (!info.ticket_id) r = '식권 ID를 인식하지 못했습니다';
+      else if (!info.ticket_date) r = '식권 날짜를 인식하지 못했습니다';
+    }
+    snd('fail'); flashEl('fail');
     showRes('fail', '식권 인식 실패', r, []);
-    addHist('-', 'fail', info); updStats('fail');
-    return;
+    addHist('-','fail',info); updStats('fail'); return;
   }
 
+  // Date validation
   const td = info.ticket_date;
   if (MODE === 'normal' && td !== TODAY) {
-    snd('fail'); flashScreen('fail');
-    showRes('fail', '오늘 날짜 식권이 아닙니다', `식권 날짜: ${td} / 오늘: ${TODAY}`, []);
-    addHist(info.ticket_id, 'fail', info); updStats('fail');
-    setCooldown();
-    return;
+    snd('fail'); flashEl('fail');
+    showRes('fail','오늘 날짜 식권이 아닙니다',`식권 날짜: ${td} / 오늘: ${TODAY}`,[]);
+    addHist(info.ticket_id,'fail',info); updStats('fail'); setCooldown(3000); return;
   }
   if (MODE === 'temp' && (td < tStart || td > tEnd)) {
-    snd('fail'); flashScreen('fail');
-    showRes('fail', '유효기간 외 식권', `식권 날짜: ${td} / 유효: ${tStart}~${tEnd}`, []);
-    addHist(info.ticket_id, 'fail', info); updStats('fail');
-    setCooldown();
-    return;
+    snd('fail'); flashEl('fail');
+    showRes('fail','유효기간 외 식권',`식권 날짜: ${td} / 유효: ${tStart}~${tEnd}`,[]);
+    addHist(info.ticket_id,'fail',info); updStats('fail'); setCooldown(3000); return;
   }
 
+  // Duplicate check
   if (usedIds.has(info.ticket_id)) {
-    snd('dup'); flashScreen('dup');
+    snd('dup'); flashEl('dup');
     setPill('dup', `중복 사용 — ${info.ticket_id}`);
-    showRes('dup', '이미 사용된 식권', `식권 ID: ${info.ticket_id} — 중복 사용 불가`, [
+    showRes('dup','이미 사용된 식권',`식권 ID ${info.ticket_id} — 중복 사용 불가`,[
       ['식권 ID', info.ticket_id], ['식권 날짜', td]
     ]);
-    addHist(info.ticket_id, 'dup', info); updStats('dup');
-    setCooldown();
-    return;
+    addHist(info.ticket_id,'dup',info); updStats('dup'); setCooldown(4000); return;
   }
 
   // ✅ APPROVED
   usedIds.add(info.ticket_id);
-  const ts = new Date().toTimeString().slice(0, 5);
-  snd('ok'); flashScreen('ok');
-  setPill('found', `승인 완료 — ${info.ticket_id}`);
-  const rows = [
-    ['식권 ID', info.ticket_id],
-    ['식권 날짜', td],
-  ];
+  const ts = new Date().toTimeString().slice(0,5);
+  snd('ok'); flashEl('ok');
+  setPill('ok', `승인 완료 ✓  ${info.ticket_id}`);
+  const rows = [['식권 ID', info.ticket_id], ['식권 날짜', td]];
   if (info.ticket_type) rows.push(['종류', info.ticket_type]);
-  if (info.amount) rows.push(['금액', parseInt(info.amount).toLocaleString('ko-KR') + '원']);
+  if (info.amount) rows.push(['금액', parseInt(info.amount).toLocaleString('ko-KR')+'원']);
   if (info.buyer_name) rows.push(['구매자', info.buyer_name]);
   rows.push(['승인 시각', ts]);
-  showRes('ok', '식권 확인 완료', `${MODE === 'temp' ? '임시식권' : '일반식권'} — ${td} 승인`, rows);
-  addHist(info.ticket_id, 'ok', info); updStats('ok'); saveAll();
-  setCooldown(4000); // longer cooldown after approval
+  showRes('ok','식권 확인 완료',`${MODE==='temp'?'임시식권':'일반식권'} — ${td} 승인`, rows);
+  addHist(info.ticket_id,'ok',info); updStats('ok'); saveAll();
+  setCooldown(4000);
 }
 
-// cooldown to prevent re-scanning same ticket
 function setCooldown(ms = 3000) {
   cooldown = true;
-  setTimeout(() => { cooldown = false; resetChecks(); }, ms);
+  setTimeout(() => { cooldown = false; resetUI(); }, ms);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // UI HELPERS
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function setPill(type, txt) {
-  const p = document.getElementById('status-pill');
+  const p = document.getElementById('spill');
   p.textContent = txt;
-  p.className = 'pill-' + type;
-  // reset to idle after brief success/dup/fail display (auto mode)
-  if (type === 'found') setTimeout(() => setPill('scanning', '분석 중...'), 3000);
+  const map = {idle:'p-idle',red:'p-red',scan:'p-scan',ok:'p-ok',dup:'p-dup',fail:'p-fail'};
+  p.className = map[type] || 'p-idle';
 }
-function setChk(id, ok) {
-  document.getElementById(id).classList.toggle('ok', !!ok);
+function setChk(id, on, isRed = false) {
+  const el = document.getElementById(id);
+  el.classList.remove('lit','lit-red');
+  if (on) el.classList.add(isRed ? 'lit-red' : 'lit');
 }
-function resetChecks() {
-  ['chk-mark','chk-id','chk-date'].forEach(id => document.getElementById(id).classList.remove('ok'));
+function resetUI() {
+  setChk('chk-red', false); setChk('chk-id', false); setChk('chk-date', false);
+  document.getElementById('redring').classList.remove('active');
+  redFrameCount = 0;
 }
-function flashScreen(type) {
+function flashEl(type) {
   const f = document.getElementById('flash');
-  f.className = 'f' + type;
-  setTimeout(() => f.className = '', 600);
+  f.className = 'f'+type; setTimeout(() => f.className='', 650);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // RESULT SHEET
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function showRes(type, statusTxt, msgTxt, rows) {
   const cfg = {
-    ok:   { e:'✓', bg:'rgba(34,197,94,.15)',  bd:'rgba(34,197,94,.4)',  c:'var(--green)', rp:'rpok' },
-    dup:  { e:'✕', bg:'rgba(239,68,68,.15)',  bd:'rgba(239,68,68,.4)', c:'var(--red)',   rp:'rpdup' },
-    fail: { e:'!', bg:'rgba(245,158,11,.15)', bd:'rgba(245,158,11,.4)',c:'var(--amber)', rp:'rpfail' },
+    ok:   {e:'✓', bg:'rgba(34,197,94,.15)', bd:'rgba(34,197,94,.4)',  c:'var(--green)', rp:'rpok'},
+    dup:  {e:'✕', bg:'rgba(239,68,68,.15)', bd:'rgba(239,68,68,.4)', c:'var(--red)',   rp:'rpdup'},
+    fail: {e:'!', bg:'rgba(245,158,11,.15)',bd:'rgba(245,158,11,.4)',c:'var(--amber)', rp:'rpfail'},
   }[type];
-  const icon = document.getElementById('rlicon');
-  icon.style.cssText = `width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:36px;background:${cfg.bg};border:2px solid ${cfg.bd}`;
+  const icon = document.getElementById('rl-icon');
+  icon.style.cssText = `width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:38px;background:${cfg.bg};border:2px solid ${cfg.bd}`;
   icon.textContent = cfg.e;
-  icon.className = cfg.rp; setTimeout(() => icon.className = '', 800);
-  document.getElementById('rlstatus').style.color = cfg.c;
-  document.getElementById('rlstatus').textContent = statusTxt;
-  document.getElementById('rlmsg').textContent = msgTxt;
-  document.getElementById('rlinfo').innerHTML = rows.length ?
-    `<div style="padding:0 20px 16px">${rows.map(([k,v]) => `<div class="ir"><span class="ik">${k}</span><span class="iv">${v}</span></div>`).join('')}</div>` : '';
+  icon.className = cfg.rp; setTimeout(()=>icon.className='', 800);
+  document.getElementById('rl-status').style.color = cfg.c;
+  document.getElementById('rl-status').textContent = statusTxt;
+  document.getElementById('rl-msg').textContent = msgTxt;
+  document.getElementById('rl-info').innerHTML = rows.length ?
+    `<div style="padding:0 20px 16px">${rows.map(([k,v])=>`<div class="ir"><span class="ik">${k}</span><span class="iv">${v}</span></div>`).join('')}</div>` : '';
   document.getElementById('rlov').style.display = 'flex';
-  requestAnimationFrame(() => document.getElementById('rlsheet').classList.add('open'));
-  if (autoOn) stopAuto(); // pause while result is showing
+  requestAnimationFrame(() => document.getElementById('rlsh').classList.add('open'));
+  if (autoOn) stopAuto(); // pause during result
 }
 function closeRes() {
-  document.getElementById('rlsheet').classList.remove('open');
+  document.getElementById('rlsh').classList.remove('open');
   setTimeout(() => {
     document.getElementById('rlov').style.display = 'none';
-    resetChecks();
-    startAuto(); // resume auto scan
+    resetUI();
+    startAuto(); // resume auto
   }, 350);
 }
 document.getElementById('rlov').addEventListener('click', e => {
   if (e.target === document.getElementById('rlov')) closeRes();
 });
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // HISTORY
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function addHist(id, status, info) {
   const n = new Date();
   scanHist.unshift({
-    id: Date.now(), tid: id || '-', status,
-    time: n.toTimeString().slice(0, 5),
-    tt: info?.ticket_type || null,
-    amt: info?.amount ? parseInt(info.amount).toLocaleString('ko-KR') + '원' : null,
+    id: Date.now(), tid: id||'-', status,
+    time: n.toTimeString().slice(0,5),
+    tt: info?.ticket_type||null,
+    amt: info?.amount ? parseInt(info.amount).toLocaleString('ko-KR')+'원' : null,
     mode: MODE
   });
-  if (scanHist.length > 200) scanHist = scanHist.slice(0, 200);
+  if (scanHist.length > 200) scanHist = scanHist.slice(0,200);
 }
-function openHist() { renderHL(); document.getElementById('histov').style.display = 'flex'; }
-function closeHist() { document.getElementById('histov').style.display = 'none'; }
+function openHist() { renderHL(); document.getElementById('histov').style.display='flex'; }
+function closeHist() { document.getElementById('histov').style.display='none'; }
 function setF(el, f) {
-  cFilter = f;
-  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+  cFilter=f; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
   el.classList.add('on'); renderHL();
 }
 function renderHL() {
   const list = document.getElementById('histlist');
-  const fl = cFilter === 'all' ? scanHist : scanHist.filter(h => h.status === cFilter);
-  if (!fl.length) { list.innerHTML = '<div id="hempty">인식 기록이 없습니다</div>'; return; }
-  list.innerHTML = fl.map(h => `
+  const fl = cFilter==='all' ? scanHist : scanHist.filter(h=>h.status===cFilter);
+  if (!fl.length) { list.innerHTML='<div id="hempty">인식 기록이 없습니다</div>'; return; }
+  list.innerHTML = fl.map(h=>`
     <div class="hi">
       <div class="hdot d${h.status}"></div>
       <div class="hbody">
         <div class="hid">${h.tid}</div>
-        <div class="hmeta">${h.time}${h.tt ? ' · ' + h.tt : ''}${h.amt ? ' · ' + h.amt : ''} · ${h.mode === 'temp' ? '임시' : '일반'}</div>
+        <div class="hmeta">${h.time}${h.tt?' · '+h.tt:''}${h.amt?' · '+h.amt:''} · ${h.mode==='temp'?'임시':'일반'}</div>
       </div>
-      <span class="htag t${h.status}">${h.status === 'ok' ? 'PASS' : h.status === 'dup' ? 'DUP' : 'FAIL'}</span>
-    </div>
-  `).join('');
+      <span class="htag t${h.status}">${h.status==='ok'?'PASS':h.status==='dup'?'DUP':'FAIL'}</span>
+    </div>`).join('');
 }
 
-// ═══════════════════════════════════════════════
-// STATS
-// ═══════════════════════════════════════════════
-function updStats(t) { stats[t] = (stats[t] || 0) + 1; renderStats(); }
+// ═══════════════════════════════════════════
+// STATS & TOAST
+// ═══════════════════════════════════════════
+function updStats(t) { stats[t]=(stats[t]||0)+1; renderStats(); }
 function renderStats() {
-  document.getElementById('cok').textContent = stats.ok || 0;
-  document.getElementById('cdup').textContent = stats.dup || 0;
-  document.getElementById('cfail').textContent = stats.fail || 0;
-  document.getElementById('ctotal').textContent = (stats.ok||0) + (stats.dup||0) + (stats.fail||0);
+  document.getElementById('cok').textContent = stats.ok||0;
+  document.getElementById('cdup').textContent = stats.dup||0;
+  document.getElementById('cfail').textContent = stats.fail||0;
+  document.getElementById('ctotal').textContent = (stats.ok||0)+(stats.dup||0)+(stats.fail||0);
 }
-
-// ═══════════════════════════════════════════════
-// TOAST
-// ═══════════════════════════════════════════════
 function showToast(m) {
-  const t = document.getElementById('toast');
-  t.textContent = m; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
+  const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
 }
 
-// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════
 // PWA
-// ═══════════════════════════════════════════════
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+// ═══════════════════════════════════════════
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
 if (!localStorage.getItem('pwa_shown') && !window.navigator.standalone) {
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
-    setTimeout(() => {
-      showToast('공유 → 홈 화면에 추가하면 앱처럼 사용할 수 있어요');
-      localStorage.setItem('pwa_shown', '1');
-    }, 2500);
-  }
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent))
+    setTimeout(()=>{ showToast('공유 → 홈 화면에 추가하면 앱처럼 사용할 수 있어요'); localStorage.setItem('pwa_shown','1'); }, 2500);
 }
 </script>
 </body>
