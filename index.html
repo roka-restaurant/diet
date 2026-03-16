@@ -2,21 +2,15 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="식권인식">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0f0f0f">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
 <title>식권 인식기</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--bg4:#2e2e2e;
-  --border:#2e2e2e;
+  --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--bg4:#2e2e2e;--border:#2e2e2e;
   --text:#f0f0f0;--text2:#888;--text3:#555;
   --green:#22c55e;--green-bg:rgba(34,197,94,.12);--green-bd:rgba(34,197,94,.3);
   --red:#ef4444;--red-bg:rgba(239,68,68,.12);--red-bd:rgba(239,68,68,.3);
@@ -26,7 +20,7 @@
   --accent:var(--green);
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans KR",sans-serif;overflow:hidden}
-#app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 /* ═══ SETUP ═══ */
 #setup{flex:1;overflow-y:auto;padding:calc(env(safe-area-inset-top,0px)+20px) 20px calc(env(safe-area-inset-bottom,0px)+28px)}
@@ -55,20 +49,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 .ticon{font-size:28px;margin-bottom:8px}
 .tname{font-size:13px;font-weight:700}
 .tdesc{font-size:10px;color:var(--text2);margin-top:4px;line-height:1.4}
-
-/* type mismatch rule card */
 .rule-card{margin-top:10px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
 .rule-icon{font-size:20px;flex-shrink:0;margin-top:1px}
-.rule-body .rule-title{font-size:13px;font-weight:700;color:var(--text)}
-.rule-body .rule-desc{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5}
+.rule-title{font-size:13px;font-weight:700}
+.rule-desc{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.5}
 .rule-row{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px}
-.rt-badge{padding:3px 10px;border-radius:6px;font-weight:700;font-size:11px;font-family:"DM Mono",monospace}
-.rt-normal{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
-.rt-temp{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
-.rt-block{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
+.rt{padding:3px 10px;border-radius:6px;font-weight:700;font-size:11px;font-family:"DM Mono",monospace}
+.rt-n{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.rt-t{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)}
 .rt-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
-.arr{color:var(--text3);font-size:14px}
-
+.rt-ng{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)}
 #tmp-opts{display:none;margin-top:10px}
 .drow{display:flex;gap:10px}
 .df{flex:1}
@@ -78,8 +68,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-family:"DM Mono",monospace;transition:all .15s}
 .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* API KEY 입력 */
+.apikey-input{width:100%;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:"DM Mono",monospace;letter-spacing:.5px}
+.apikey-input:focus{outline:none;border-color:var(--green)}
+.apikey-input::placeholder{color:var(--text3);letter-spacing:0}
+
 .btn-start{width:100%;padding:18px;border:none;border-radius:16px;background:var(--green);color:#000;font-weight:700;font-size:16px;font-family:"Noto Sans KR",sans-serif;cursor:pointer;letter-spacing:-.3px;transition:transform .1s}
 .btn-start:active{transform:scale(.98)}
+.btn-start:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
 /* ═══ SCANNER ═══ */
 #scanner{flex:1;display:none;flex-direction:column;overflow:hidden}
@@ -114,8 +111,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 @keyframes sl{0%{top:4px;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:calc(100% - 6px);opacity:0}}
 #redring{position:absolute;inset:0;border:3px solid transparent;transition:border-color .3s;pointer-events:none;z-index:1}
 #redring.active{border-color:rgba(239,68,68,.5)}
-
-/* Status pill */
 #spill{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);font-size:12px;padding:7px 18px;border-radius:24px;font-family:"DM Mono",monospace;letter-spacing:.3px;z-index:2;transition:all .3s;white-space:nowrap}
 .p-idle{background:rgba(0,0,0,.65);color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.08)}
 .p-red{background:rgba(239,68,68,.2);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
@@ -124,15 +119,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 .p-dup{background:rgba(239,68,68,.9);color:#fff;border:none;font-weight:700}
 .p-mismatch{background:rgba(168,85,247,.9);color:#fff;border:none;font-weight:700}
 .p-fail{background:rgba(245,158,11,.85);color:#000;border:none}
-
-/* 4-check indicators (added ticket-type check) */
 #checks{position:absolute;top:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:2}
-.chk{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:12px;font-size:10px;font-weight:700;font-family:"DM Mono",monospace;letter-spacing:.3px;background:rgba(0,0,0,.7);color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.08);transition:all .35s;white-space:nowrap}
+.chk{display:flex;align-items:center;gap:4px;padding:4px 9px;border-radius:12px;font-size:10px;font-weight:700;font-family:"DM Mono",monospace;background:rgba(0,0,0,.7);color:rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.08);transition:all .35s;white-space:nowrap}
 .chk.lit{background:rgba(34,197,94,.2);color:var(--green);border-color:rgba(34,197,94,.45)}
 .chk.lit-red{background:rgba(239,68,68,.2);color:#fca5a5;border-color:rgba(239,68,68,.4)}
 .chk.lit-bad{background:rgba(239,68,68,.25);color:var(--red);border-color:rgba(239,68,68,.5)}
 .chkdot{width:5px;height:5px;border-radius:50%;background:currentColor}
-
 #vbanner{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:11px;font-family:"DM Mono",monospace;padding:5px 14px;border-radius:20px;white-space:nowrap;z-index:3;display:none}
 .vok{background:rgba(168,85,247,.85);color:#fff}
 .verr{background:rgba(239,68,68,.85);color:#fff}
@@ -141,7 +133,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 /* Controls */
 #ctrls{padding:14px 20px calc(env(safe-area-inset-bottom,0px)+14px);background:var(--bg);border-top:1px solid var(--border);flex-shrink:0}
 #ctrl-row{display:flex;gap:10px;margin-bottom:10px}
-.cbtn{flex:1;padding:13px 10px;border:1px solid var(--border);border-radius:12px;background:var(--bg3);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .1s,background .15s}
+.cbtn{flex:1;padding:13px 10px;border:1px solid var(--border);border-radius:12px;background:var(--bg3);color:var(--text);font-family:"Noto Sans KR",sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .1s}
 .cbtn:active{transform:scale(.97)}
 .cbtn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .cbtn-p{border:none;color:#000;font-weight:700;font-size:15px}
@@ -163,7 +155,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 #rl-icon{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:38px}
 #rl-status{font-size:24px;font-weight:700;letter-spacing:-.5px}
 #rl-msg{font-size:13px;color:var(--text2);margin-top:6px;line-height:1.5}
-/* type mismatch alert inside result */
 #rl-mismatch{display:none;margin:0 20px 12px;padding:12px 14px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.35);border-radius:12px}
 #rl-mismatch .mm-title{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:4px}
 #rl-mismatch .mm-body{font-size:11px;color:var(--text2);line-height:1.5}
@@ -172,9 +163,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 .ir:last-child{border-bottom:none}
 .ik{font-size:12px;color:var(--text2)}
 .iv{font-size:13px;font-weight:500;font-family:"DM Mono",monospace;text-align:right;max-width:65%;word-break:break-all}
-.iv-bad{color:var(--red)}
 #rl-close{margin:4px 20px 0;width:calc(100% - 40px);padding:15px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:"Noto Sans KR",sans-serif}
-#rl-close:active{background:var(--bg4)}
 
 /* ═══ ANALYZING ═══ */
 #anaov{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:rgba(0,0,0,.82)}
@@ -224,15 +213,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 <body>
 <div id="app">
 
-<!-- ══════════════════ SETUP ══════════════════ -->
+<!-- ══ SETUP ══ -->
 <div id="setup">
   <div class="s-logo">🎫</div>
   <div class="s-title">식권 인식기</div>
-  <div class="s-sub">단말기를 세워두고 직원이 식권 화면을 비추면<br>자동으로 인식·승인합니다.</div>
+  <div class="s-sub">직원이 식권 화면을 카메라에 비추면<br>자동으로 인식·승인합니다.</div>
 
-  <!-- 식권 종류 선택 -->
+  <!-- API KEY -->
   <div class="sec">
-    <div class="sec-lbl">TICKET TYPE — 이 단말기 설정</div>
+    <div class="sec-lbl">ANTHROPIC API KEY</div>
+    <div class="card">
+      <div class="crow" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <div style="font-size:12px;color:var(--text2)">Claude API 키를 입력하세요 (sk-ant-...)</div>
+        <input type="password" class="apikey-input" id="apikey" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+        <div style="font-size:10px;color:var(--text3)">앱 재시작 후에도 유지됩니다. 기기에만 저장됩니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 식권 종류 -->
+  <div class="sec">
+    <div class="sec-lbl">TICKET TYPE</div>
     <div class="tgrid">
       <div class="tcard sel-n" id="tcn" onclick="selType('normal')">
         <div class="ticon">🍱</div>
@@ -245,44 +246,24 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
         <div class="tdesc">기간 지정 행사·방문자용</div>
       </div>
     </div>
-
-    <!-- 식권 종류 불일치 규칙 안내 -->
-    <div class="rule-card" id="rule-card-n">
+    <div class="rule-card" id="rule-n">
       <div class="rule-icon">🚫</div>
-      <div class="rule-body">
+      <div>
         <div class="rule-title">식권 종류 불일치 자동 차단</div>
-        <div class="rule-desc">이 단말기는 <strong>일반 식권</strong> 전용입니다.<br>한시적 임시식권이 인식되면 자동으로 거부됩니다.</div>
-        <div class="rule-row">
-          <span class="rt-badge rt-normal">일반식권</span>
-          <span class="arr">→</span>
-          <span class="rt-badge rt-ok">✓ 승인</span>
-        </div>
-        <div class="rule-row">
-          <span class="rt-badge rt-temp">한시적식권</span>
-          <span class="arr">→</span>
-          <span class="rt-badge rt-block">✕ 거부</span>
-        </div>
+        <div class="rule-desc">일반식권 전용 단말기 — 한시적 식권 거부</div>
+        <div class="rule-row"><span class="rt rt-n">일반</span><span style="color:var(--text3)">→</span><span class="rt rt-ok">✓ 승인</span></div>
+        <div class="rule-row"><span class="rt rt-t">한시적</span><span style="color:var(--text3)">→</span><span class="rt rt-ng">✕ 거부</span></div>
       </div>
     </div>
-    <div class="rule-card" id="rule-card-t" style="display:none">
+    <div class="rule-card" id="rule-t" style="display:none">
       <div class="rule-icon">🚫</div>
-      <div class="rule-body">
+      <div>
         <div class="rule-title">식권 종류 불일치 자동 차단</div>
-        <div class="rule-desc">이 단말기는 <strong>한시적 임시식권</strong> 전용입니다.<br>일반 식권이 인식되면 자동으로 거부됩니다.</div>
-        <div class="rule-row">
-          <span class="rt-badge rt-temp">한시적식권</span>
-          <span class="arr">→</span>
-          <span class="rt-badge rt-ok">✓ 승인</span>
-        </div>
-        <div class="rule-row">
-          <span class="rt-badge rt-normal">일반식권</span>
-          <span class="arr">→</span>
-          <span class="rt-badge rt-block">✕ 거부</span>
-        </div>
+        <div class="rule-desc">한시적식권 전용 단말기 — 일반식권 거부</div>
+        <div class="rule-row"><span class="rt rt-t">한시적</span><span style="color:var(--text3)">→</span><span class="rt rt-ok">✓ 승인</span></div>
+        <div class="rule-row"><span class="rt rt-n">일반</span><span style="color:var(--text3)">→</span><span class="rt rt-ng">✕ 거부</span></div>
       </div>
     </div>
-
-    <!-- 임시식권 옵션 -->
     <div id="tmp-opts">
       <div style="height:12px"></div>
       <div class="card">
@@ -294,7 +275,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
           </div>
         </div>
         <div class="crow" style="flex-direction:column;align-items:flex-start;gap:8px">
-          <div style="font-size:12px;color:var(--text2)">1일 사용 가능 시간대</div>
+          <div style="font-size:12px;color:var(--text2)">사용 가능 시간대</div>
           <div class="chips">
             <span class="chip on" data-t="all" onclick="selTime(this)">종일</span>
             <span class="chip" data-t="breakfast" onclick="selTime(this)">조식 07-09</span>
@@ -310,14 +291,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
   <div class="sec">
     <div class="sec-lbl">SETTINGS</div>
     <div class="card">
-      <div class="crow">
-        <div class="rico" style="background:var(--red-bg);border:1px solid var(--red-bd)">🔴</div>
-        <div class="rbody">
-          <div class="rtitle">빨간색 자동 감지</div>
-          <div class="rdesc">프레임에서 빨간 픽셀 감지 시에만 AI 분석<br>→ API 호출 절감 + 반응속도 향상</div>
-        </div>
-        <label class="tog"><input type="checkbox" id="tred" checked><div class="tog-t"></div><div class="tog-k"></div></label>
-      </div>
       <div class="crow">
         <div class="rico" style="background:var(--blue-bg);border:1px solid var(--blue-bd)">🔊</div>
         <div class="rbody"><div class="rtitle">소리 알람</div><div class="rdesc">승인/중복/불일치/오류 각기 다른 알람음</div></div>
@@ -341,18 +314,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
     </div>
   </div>
 
-  <button class="btn-start" onclick="startScanner()">인식 시작하기 →</button>
+  <button class="btn-start" id="btnstart" onclick="startScanner()">인식 시작하기 →</button>
 </div>
 
-<!-- ══════════════════ SCANNER ══════════════════ -->
+<!-- ══ SCANNER ══ -->
 <div id="scanner">
   <div id="hdr">
     <div class="hl">
       <div class="hlogo ln" id="hlogo">🎫</div>
-      <div>
-        <div class="htitle" id="htitle">식권 인식기</div>
-        <div class="hsub" id="hsub">—</div>
-      </div>
+      <div><div class="htitle" id="htitle">식권 인식기</div><div class="hsub" id="hsub">—</div></div>
     </div>
     <div class="hright">
       <span class="mbadge bn" id="mbadge">AUTO</span>
@@ -364,13 +334,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
       </div>
     </div>
   </div>
-
   <div id="vcont">
     <video id="video" autoplay playsinline muted></video>
-    <canvas id="canvas"></canvas>
-    <canvas id="precanvas"></canvas>
-    <div id="ov">
-      <div id="dim"></div>
+    <canvas id="canvas"></canvas><canvas id="precanvas"></canvas>
+    <div id="ov"><div id="dim"></div>
       <div id="sbox">
         <div class="cn cn-tl"></div><div class="cn cn-tr"></div>
         <div class="cn cn-bl"></div><div class="cn cn-br"></div>
@@ -378,7 +345,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
       </div>
     </div>
     <div id="redring"></div>
-    <!-- 4가지 체크 인디케이터 -->
     <div id="checks">
       <div class="chk" id="chk-red"><div class="chkdot"></div>사용완료</div>
       <div class="chk" id="chk-type"><div class="chkdot"></div>식권종류</div>
@@ -387,12 +353,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
     </div>
     <div id="spill" class="p-idle">식권 화면을 프레임에 비춰주세요</div>
     <div id="vbanner"></div>
-    <div id="nocam">
-      <span style="font-size:40px">📷</span>
-      카메라를 사용할 수 없습니다<br>하단 업로드 버튼을 이용해주세요
-    </div>
+    <div id="nocam"><span style="font-size:40px">📷</span>카메라 권한을 허용해주세요</div>
   </div>
-
   <div id="ctrls">
     <div id="ctrl-row">
       <button class="cbtn cbtn-p cap-n" id="btnauto" onclick="toggleAuto()">
@@ -418,16 +380,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
 </div>
 </div>
 
-<!-- Analyzing -->
-<div id="anaov">
-  <div class="ring rn" id="anaring"></div>
-  <div id="anatxt">식권 분석 중...</div>
-</div>
-
-<!-- Flash -->
+<div id="anaov"><div class="ring rn" id="anaring"></div><div id="anatxt">식권 분석 중...</div></div>
 <div id="flash"></div>
 
-<!-- Result Sheet -->
 <div id="rlov">
   <div id="rlsh">
     <div class="shdl"></div>
@@ -436,21 +391,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
       <div id="rl-status"></div>
       <div id="rl-msg"></div>
     </div>
-    <div id="rl-mismatch">
-      <div class="mm-title">⚠ 식권 종류 불일치</div>
-      <div class="mm-body" id="mm-body-txt"></div>
-    </div>
+    <div id="rl-mismatch"><div class="mm-title">⚠ 식권 종류 불일치</div><div class="mm-body" id="mm-txt"></div></div>
     <div id="rl-info"></div>
     <button id="rl-close" onclick="closeRes()">다음 식권 인식하기</button>
   </div>
 </div>
 
-<!-- History -->
 <div id="histov">
-  <div id="histhdr">
-    <h2>인식 기록</h2>
-    <button class="hcbtn" onclick="closeHist()">닫기</button>
-  </div>
+  <div id="histhdr"><h2>인식 기록</h2><button class="hcbtn" onclick="closeHist()">닫기</button></div>
   <div id="histfil">
     <button class="fb on" onclick="setF(this,'all')">전체</button>
     <button class="fb" onclick="setF(this,'ok')">승인</button>
@@ -460,697 +408,324 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Noto S
   </div>
   <div id="histlist"></div>
 </div>
-
 <div id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════
-// AUDIO
-// ════════════════════════════════════════════
+// ══ AUDIO ══════════════════════════════════════
 let actx = null;
-function getAC() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  if (actx.state === 'suspended') actx.resume();
-  return actx;
-}
-function mkMaster(c) {
-  const m = c.createGain(); m.gain.value = 1.0; m.connect(c.destination); return m;
-}
-function playOk() {
-  try {
-    const c = getAC(), m = mkMaster(c);
-    [[880,0,.15],[1100,.18,.14],[1320,.33,.25]].forEach(([f,s,d]) => {
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0, c.currentTime+s);
-      g.gain.linearRampToValueAtTime(0.9, c.currentTime+s+.02);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+s+d);
-      o.connect(g); g.connect(m);
-      o.start(c.currentTime+s); o.stop(c.currentTime+s+d+.06);
-    });
-  } catch(e) {}
-}
-function playDup() {
-  try {
-    const c = getAC(), m = mkMaster(c);
-    [[440,0,.2],[330,.23,.32]].forEach(([f,s,d]) => {
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = 'square'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.85, c.currentTime+s);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+s+d);
-      o.connect(g); g.connect(m);
-      o.start(c.currentTime+s); o.stop(c.currentTime+s+d+.06);
-    });
-  } catch(e) {}
-}
-function playMismatch() {
-  try {
-    const c = getAC(), m = mkMaster(c);
-    [[600,0,.18],[400,.21,.16],[600,.40,.26]].forEach(([f,s,d]) => {
-      const o = c.createOscillator(), g = c.createGain();
-      o.type = 'triangle'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.88, c.currentTime+s);
-      g.gain.exponentialRampToValueAtTime(.001, c.currentTime+s+d);
-      o.connect(g); g.connect(m);
-      o.start(c.currentTime+s); o.stop(c.currentTime+s+d+.06);
-    });
-  } catch(e) {}
-}
-function playFail() {
-  // 오류 — 두 번 버즈, 총 약 0.9초 (0.5초 더 길게)
-  try {
-    const c = getAC(), m = mkMaster(c);
-    const o1 = c.createOscillator(), g1 = c.createGain();
-    o1.type = 'sawtooth'; o1.frequency.value = 220;
-    g1.gain.setValueAtTime(0.9, c.currentTime);
-    g1.gain.exponentialRampToValueAtTime(.001, c.currentTime+.55);
-    o1.connect(g1); g1.connect(m);
-    o1.start(); o1.stop(c.currentTime+.58);
-    const o2 = c.createOscillator(), g2 = c.createGain();
-    o2.type = 'sawtooth'; o2.frequency.value = 180;
-    g2.gain.setValueAtTime(0, c.currentTime+.35);
-    g2.gain.linearRampToValueAtTime(0.75, c.currentTime+.38);
-    g2.gain.exponentialRampToValueAtTime(.001, c.currentTime+.9);
-    o2.connect(g2); g2.connect(m);
-    o2.start(c.currentTime+.35); o2.stop(c.currentTime+.95);
-  } catch(e) {}
-}
-function snd(t) {
-  if (!document.getElementById('tsnd').checked) return;
-  if (t==='ok') playOk();
-  else if (t==='dup') playDup();
-  else if (t==='mm') playMismatch();
-  else playFail();
-}
+function getAC(){if(!actx)actx=new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx;}
+function mkM(c){const m=c.createGain();m.gain.value=1.0;m.connect(c.destination);return m;}
+function playOk(){try{const c=getAC(),m=mkM(c);[[880,0,.15],[1100,.18,.14],[1320,.33,.25]].forEach(([f,s,d])=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,c.currentTime+s);g.gain.linearRampToValueAtTime(0.9,c.currentTime+s+.02);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.connect(g);g.connect(m);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.06);});}catch(e){}}
+function playDup(){try{const c=getAC(),m=mkM(c);[[440,0,.2],[330,.23,.32]].forEach(([f,s,d])=>{const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(0.85,c.currentTime+s);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.connect(g);g.connect(m);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.06);});}catch(e){}}
+function playMismatch(){try{const c=getAC(),m=mkM(c);[[600,0,.18],[400,.21,.16],[600,.40,.26]].forEach(([f,s,d])=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(0.88,c.currentTime+s);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+s+d);o.connect(g);g.connect(m);o.start(c.currentTime+s);o.stop(c.currentTime+s+d+.06);});}catch(e){}}
+function playFail(){try{const c=getAC(),m=mkM(c);const o1=c.createOscillator(),g1=c.createGain();o1.type='sawtooth';o1.frequency.value=220;g1.gain.setValueAtTime(0.9,c.currentTime);g1.gain.exponentialRampToValueAtTime(.001,c.currentTime+.55);o1.connect(g1);g1.connect(m);o1.start();o1.stop(c.currentTime+.58);const o2=c.createOscillator(),g2=c.createGain();o2.type='sawtooth';o2.frequency.value=180;g2.gain.setValueAtTime(0,c.currentTime+.35);g2.gain.linearRampToValueAtTime(0.75,c.currentTime+.38);g2.gain.exponentialRampToValueAtTime(.001,c.currentTime+.9);o2.connect(g2);g2.connect(m);o2.start(c.currentTime+.35);o2.stop(c.currentTime+.95);}catch(e){}}
+function snd(t){if(!document.getElementById('tsnd').checked)return;if(t==='ok')playOk();else if(t==='dup')playDup();else if(t==='mm')playMismatch();else playFail();}
 
-// ════════════════════════════════════════════
-// RED PIXEL DETECTOR
-// ════════════════════════════════════════════
-function detectRed(videoEl) {
-  try {
-    const pw = 320, ph = 200;
-    const pc = document.getElementById('precanvas');
-    pc.width = pw; pc.height = ph;
-    const ctx = pc.getContext('2d');
-    const vw = videoEl.videoWidth || 640, vh = videoEl.videoHeight || 480;
-    const cw = vw * 0.78, ch = vh * 0.62;
-    const cx = (vw-cw)/2, cy = (vh-ch)/2;
-    ctx.drawImage(videoEl, cx, cy, cw, ch, 0, 0, pw, ph);
-    const data = ctx.getImageData(0, 0, pw, ph).data;
-    let red = 0;
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i], g = data[i+1], b = data[i+2];
-      if (r > 150 && r > g * 1.7 && r > b * 1.7) red++;
-    }
-    return red / (pw * ph);
-  } catch(e) { return 0; }
-}
+// ══ RED DETECTOR ════════════════════════════════
+function detectRed(v){try{const pw=320,ph=200,pc=document.getElementById('precanvas');pc.width=pw;pc.height=ph;const ctx=pc.getContext('2d'),vw=v.videoWidth||640,vh=v.videoHeight||480,cw=vw*.78,ch=vh*.62;ctx.drawImage(v,(vw-cw)/2,(vh-ch)/2,cw,ch,0,0,pw,ph);const d=ctx.getImageData(0,0,pw,ph).data;let r=0;for(let i=0;i<d.length;i+=4)if(d[i]>150&&d[i]>d[i+1]*1.7&&d[i]>d[i+2]*1.7)r++;return r/(pw*ph);}catch(e){return 0;}}
 
-// ════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════
-let MODE = 'normal', tSlot = 'all', tStart = null, tEnd = null;
-let usedIds = new Set(), scanHist = [], stats = {ok:0, dup:0, mm:0, fail:0};
-let vstream = null, cFilter = 'all';
-let autoOn = false, previewTimer = null, analyzing = false, cooldown = false;
-let redFrameCount = 0;
-const RED_THRESHOLD = 0.001; // 0.1% — 작은 빨간 텍스트도 감지 (기존 0.4%에서 4배 민감)
-const RED_CONFIRM  = 1;      // 1프레임만 감지돼도 즉시 분석 (기존 2)
-let fallbackCount = 0;       // 빨간 감지 없어도 N초마다 강제 AI 호출
-const TODAY = new Date().toISOString().slice(0, 10);
+// ══ STATE ════════════════════════════════════════
+let MODE='normal',tSlot='all',tStart=null,tEnd=null;
+let usedIds=new Set(),scanHist=[],stats={ok:0,dup:0,mm:0,fail:0};
+let vstream=null,cFilter='all';
+let autoOn=false,previewTimer=null,analyzing=false,cooldown=false;
+let redFrameCount=0,fallbackCount=0;
+const TODAY=new Date().toISOString().slice(0,10);
+const NORMAL_KW=['일반','정규'];
+const TEMP_KW=['한시적','임시','기간'];
+function classifyType(raw){if(!raw)return 'unknown';const s=raw.toLowerCase();if(TEMP_KW.some(k=>s.includes(k)))return 'temp';if(NORMAL_KW.some(k=>s.includes(k)))return 'normal';return 'unknown';}
 
-// ── ticket-type keyword maps ──────────────────
-// AI 응답에서 "일반" / "한시적" 판별에 사용할 키워드
-const NORMAL_KEYWORDS = ['일반', '정규', 'regular', 'normal'];
-const TEMP_KEYWORDS   = ['한시적', '임시', '기간', 'temporary', 'temp'];
+// ── API Key (localStorage 저장) ──────────────────
+function getApiKey(){return localStorage.getItem('api_key')||'';}
+function saveApiKey(k){localStorage.setItem('api_key',k);}
 
-function classifyTicketType(raw) {
-  // raw: string from AI (ticket_category field)
-  // returns 'normal' | 'temp' | 'unknown'
-  if (!raw) return 'unknown';
-  const s = raw.toLowerCase();
-  if (TEMP_KEYWORDS.some(k => s.includes(k))) return 'temp';
-  if (NORMAL_KEYWORDS.some(k => s.includes(k))) return 'normal';
-  return 'unknown';
-}
-
-// ── Daily clean ──────────────────────────────
-function dailyClean() {
-  const d = localStorage.getItem('sc_date');
-  if (d !== TODAY) {
-    ['sc_hist','sc_stats','sc_ids'].forEach(k => localStorage.removeItem(k));
-    localStorage.setItem('sc_date', TODAY);
-  } else {
-    try { scanHist = JSON.parse(localStorage.getItem('sc_hist') || '[]'); } catch(e) { scanHist = []; }
-    try { stats = JSON.parse(localStorage.getItem('sc_stats') || '{"ok":0,"dup":0,"mm":0,"fail":0}'); } catch(e) {}
-    try { usedIds = new Set(JSON.parse(localStorage.getItem('sc_ids') || '[]')); } catch(e) {}
-  }
+// ── Daily clean ──────────────────────────────────
+function dailyClean(){
+  const d=localStorage.getItem('sc_date');
+  if(d!==TODAY){['sc_hist','sc_stats','sc_ids'].forEach(k=>localStorage.removeItem(k));localStorage.setItem('sc_date',TODAY);}
+  else{try{scanHist=JSON.parse(localStorage.getItem('sc_hist')||'[]');}catch(e){scanHist=[];}try{stats=JSON.parse(localStorage.getItem('sc_stats')||'{"ok":0,"dup":0,"mm":0,"fail":0}');}catch(e){}try{usedIds=new Set(JSON.parse(localStorage.getItem('sc_ids')||'[]'));}catch(e){}}
 }
 dailyClean();
-
-function scheduleMidnight() {
-  const n = new Date();
-  const ms = new Date(n.getFullYear(), n.getMonth(), n.getDate()+1) - n;
-  setTimeout(() => {
-    if (document.getElementById('tclean').checked) {
-      scanHist = []; stats = {ok:0,dup:0,mm:0,fail:0}; usedIds = new Set();
-      saveAll(); renderStats(); showToast('자정이 지나 인식 데이터가 초기화되었습니다');
-    }
-    scheduleMidnight();
-  }, ms + 500);
-}
+function scheduleMidnight(){const n=new Date(),ms=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1)-n;setTimeout(()=>{if(document.getElementById('tclean').checked){scanHist=[];stats={ok:0,dup:0,mm:0,fail:0};usedIds=new Set();saveAll();renderStats();showToast('자정이 지나 데이터가 초기화되었습니다');}scheduleMidnight();},ms+500);}
 scheduleMidnight();
+function saveAll(){localStorage.setItem('sc_hist',JSON.stringify(scanHist));localStorage.setItem('sc_stats',JSON.stringify(stats));localStorage.setItem('sc_ids',JSON.stringify([...usedIds]));localStorage.setItem('sc_date',TODAY);}
 
-function saveAll() {
-  localStorage.setItem('sc_hist', JSON.stringify(scanHist));
-  localStorage.setItem('sc_stats', JSON.stringify(stats));
-  localStorage.setItem('sc_ids', JSON.stringify([...usedIds]));
-  localStorage.setItem('sc_date', TODAY);
+// ══ SETUP INIT ═══════════════════════════════════
+document.getElementById('todaytxt').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+document.getElementById('ds').value=TODAY;
+const ed=new Date();ed.setDate(ed.getDate()+7);document.getElementById('de').value=ed.toISOString().slice(0,10);
+// API 키 복원
+const savedKey=getApiKey();
+if(savedKey)document.getElementById('apikey').value=savedKey;
+// API 키 입력될 때마다 버튼 활성화
+document.getElementById('apikey').addEventListener('input',e=>{checkStartBtn();});
+function checkStartBtn(){const k=document.getElementById('apikey').value.trim();document.getElementById('btnstart').disabled=!k.startsWith('sk-ant-');}
+checkStartBtn();
+
+function selType(t){MODE=t;document.getElementById('tcn').className='tcard'+(t==='normal'?' sel-n':'');document.getElementById('tct').className='tcard'+(t==='temp'?' sel-t':'');document.getElementById('tmp-opts').style.display=t==='temp'?'block':'none';document.getElementById('rule-n').style.display=t==='normal'?'flex':'none';document.getElementById('rule-t').style.display=t==='temp'?'flex':'none';}
+function selTime(el){document.querySelectorAll('.chip[data-t]').forEach(c=>c.classList.remove('on'));el.classList.add('on');tSlot=el.dataset.t;}
+
+function startScanner(){
+  const k=document.getElementById('apikey').value.trim();
+  if(!k.startsWith('sk-ant-')){showToast('올바른 API 키를 입력해주세요 (sk-ant-...)');return;}
+  saveApiKey(k);
+  if(MODE==='temp'){tStart=document.getElementById('ds').value;tEnd=document.getElementById('de').value;if(!tStart||!tEnd||tStart>tEnd){showToast('유효 기간을 올바르게 설정해주세요');return;}}
+  const isT=MODE==='temp';
+  document.documentElement.style.setProperty('--accent',isT?'var(--purple)':'var(--green)');
+  document.getElementById('hlogo').className='hlogo '+(isT?'lt':'ln');
+  document.getElementById('htitle').textContent=isT?'임시 식권 인식기':'식권 인식기';
+  document.getElementById('hsub').textContent=isT?`유효: ${tStart} ~ ${tEnd}`:`오늘: ${TODAY}`;
+  document.getElementById('mbadge').className='mbadge '+(isT?'btp':'bn');
+  document.getElementById('mbadge').textContent=isT?'TEMP·AUTO':'AUTO';
+  document.getElementById('btnauto').className='cbtn cbtn-p '+(isT?'cap-t':'cap-n');
+  document.getElementById('anaring').className='ring '+(isT?'rt':'rn');
+  if(isT){const b=document.getElementById('vbanner');const ir=TODAY>=tStart&&TODAY<=tEnd;b.textContent=ir?`임시식권 유효기간 내 (${tStart} ~ ${tEnd})`:`유효기간 외 승인불가`;b.className=ir?'vok':'verr';b.style.display='block';}
+  document.getElementById('setup').style.display='none';
+  document.getElementById('scanner').style.display='flex';
+  renderStats();initCam();
 }
+function backSetup(){stopAuto();if(vstream){vstream.getTracks().forEach(t=>t.stop());vstream=null;}document.getElementById('scanner').style.display='none';document.getElementById('setup').style.display='block';resetUI();}
 
-// ════════════════════════════════════════════
-// SETUP
-// ════════════════════════════════════════════
-document.getElementById('todaytxt').textContent =
-  new Date().toLocaleDateString('ko-KR', {year:'numeric',month:'long',day:'numeric',weekday:'long'});
-document.getElementById('ds').value = TODAY;
-const ed = new Date(); ed.setDate(ed.getDate()+7);
-document.getElementById('de').value = ed.toISOString().slice(0,10);
-
-function selType(t) {
-  MODE = t;
-  document.getElementById('tcn').className = 'tcard' + (t==='normal' ? ' sel-n' : '');
-  document.getElementById('tct').className = 'tcard' + (t==='temp'   ? ' sel-t' : '');
-  document.getElementById('tmp-opts').style.display     = t==='temp' ? 'block' : 'none';
-  document.getElementById('rule-card-n').style.display  = t==='normal' ? 'flex' : 'none';
-  document.getElementById('rule-card-t').style.display  = t==='temp'   ? 'flex' : 'none';
-}
-function selTime(el) {
-  document.querySelectorAll('.chip[data-t]').forEach(c => c.classList.remove('on'));
-  el.classList.add('on'); tSlot = el.dataset.t;
-}
-
-function startScanner() {
-  if (MODE === 'temp') {
-    tStart = document.getElementById('ds').value;
-    tEnd   = document.getElementById('de').value;
-    if (!tStart || !tEnd || tStart > tEnd) { showToast('유효 기간을 올바르게 설정해주세요'); return; }
-  }
-  const isT = MODE === 'temp';
-  document.documentElement.style.setProperty('--accent', isT ? 'var(--purple)' : 'var(--green)');
-  document.getElementById('hlogo').className   = 'hlogo ' + (isT ? 'lt' : 'ln');
-  document.getElementById('htitle').textContent = isT ? '임시 식권 인식기' : '식권 인식기';
-  document.getElementById('hsub').textContent   = isT ? `유효: ${tStart} ~ ${tEnd}` : `오늘: ${TODAY}`;
-  document.getElementById('mbadge').className   = 'mbadge ' + (isT ? 'btp' : 'bn');
-  document.getElementById('mbadge').textContent = isT ? 'TEMP·AUTO' : 'AUTO';
-  document.getElementById('btnauto').className  = 'cbtn cbtn-p ' + (isT ? 'cap-t' : 'cap-n');
-  document.getElementById('anaring').className  = 'ring ' + (isT ? 'rt' : 'rn');
-  if (isT) {
-    const b = document.getElementById('vbanner');
-    const inRange = TODAY >= tStart && TODAY <= tEnd;
-    b.textContent = inRange
-      ? `임시식권 유효기간 내 (${tStart} ~ ${tEnd})`
-      : `유효기간 외 승인불가 (${tStart} ~ ${tEnd})`;
-    b.className = inRange ? 'vok' : 'verr';
-    b.style.display = 'block';
-  }
-  document.getElementById('setup').style.display  = 'none';
-  document.getElementById('scanner').style.display = 'flex';
-  renderStats(); initCam();
-}
-
-function backSetup() {
-  stopAuto();
-  if (vstream) { vstream.getTracks().forEach(t => t.stop()); vstream = null; }
-  document.getElementById('scanner').style.display = 'none';
-  document.getElementById('setup').style.display   = 'block';
-  resetUI();
-}
-
-// ════════════════════════════════════════════
-// CAMERA
-// ════════════════════════════════════════════
-const video  = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-
-async function initCam() {
-  try {
-    vstream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: {ideal:'environment'}, width: {ideal:1920}, height: {ideal:1080} }
-    });
-    video.srcObject = vstream;
-    video.onloadedmetadata = () => {
-      document.getElementById('btn-manual').disabled = false;
-      startAuto();
-    };
-  } catch(e) {
-    document.getElementById('nocam').style.display = 'flex';
-    video.style.display = 'none';
-    document.getElementById('ov').style.display    = 'none';
-    document.getElementById('redring').style.display = 'none';
-    document.getElementById('checks').style.display  = 'none';
-    document.getElementById('spill').style.display   = 'none';
-    showToast('카메라 권한이 필요합니다');
+// ══ CAMERA ═══════════════════════════════════════
+const video=document.getElementById('video'),canvas=document.getElementById('canvas');
+async function initCam(){
+  try{
+    vstream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}});
+    video.srcObject=vstream;
+    video.onloadedmetadata=()=>{document.getElementById('btn-manual').disabled=false;startAuto();};
+  }catch(e){
+    document.getElementById('nocam').style.display='flex';
+    video.style.display='none';
+    document.getElementById('ov').style.display='none';
+    ['redring','checks','spill'].forEach(id=>document.getElementById(id).style.display='none');
+    showToast('카메라 권한을 허용해주세요');
   }
 }
+function captureHQ(){canvas.width=video.videoWidth||1280;canvas.height=video.videoHeight||720;canvas.getContext('2d').drawImage(video,0,0);return canvas.toDataURL('image/jpeg',.88);}
 
-function captureHQ() {
-  canvas.width  = video.videoWidth  || 1280;
-  canvas.height = video.videoHeight || 720;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  return canvas.toDataURL('image/jpeg', 0.88);
-}
+// ══ AUTO SCAN LOOP ════════════════════════════════
+function startAuto(){autoOn=true;updateAutoBtn();setPill('idle','식권 화면을 프레임에 비춰주세요');document.getElementById('sline').classList.remove('go');runPreview();}
+function stopAuto(){autoOn=false;clearTimeout(previewTimer);updateAutoBtn();document.getElementById('sline').classList.remove('go');document.getElementById('redring').classList.remove('active');setPill('idle','자동 인식이 중지되었습니다');redFrameCount=0;fallbackCount=0;}
+function toggleAuto(){if(autoOn)stopAuto();else startAuto();}
+function updateAutoBtn(){const ico=document.getElementById('aico'),txt=document.getElementById('atxt');if(autoOn){ico.innerHTML='<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/>';txt.textContent='자동인식 중지';}else{ico.innerHTML='<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>';txt.textContent='자동인식 시작';}}
 
-// ════════════════════════════════════════════
-// AUTO SCAN LOOP
-// ════════════════════════════════════════════
-function startAuto() {
-  autoOn = true; updateAutoBtn();
-  setPill('idle', '식권 화면을 프레임에 비춰주세요');
-  document.getElementById('sline').classList.remove('go');
-  runPreview();
-}
-function stopAuto() {
-  autoOn = false; clearTimeout(previewTimer); updateAutoBtn();
-  document.getElementById('sline').classList.remove('go');
-  document.getElementById('redring').classList.remove('active');
-  setPill('idle', '자동 인식이 중지되었습니다');
-  redFrameCount = 0; fallbackCount = 0;
-}
-function toggleAuto() { if (autoOn) stopAuto(); else startAuto(); }
-function updateAutoBtn() {
-  const ico = document.getElementById('aico'), txt = document.getElementById('atxt');
-  if (autoOn) {
-    ico.innerHTML = '<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/>';
-    txt.textContent = '자동인식 중지';
-  } else {
-    ico.innerHTML = '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>';
-    txt.textContent = '자동인식 시작';
-  }
-}
-
-function runPreview() {
-  if (!autoOn) return;
-  previewTimer = setTimeout(() => {
-    if (!autoOn || analyzing || cooldown) { runPreview(); return; }
-    if (!vstream || video.readyState < 2) { runPreview(); return; }
-
-    const useRedGate = document.getElementById('tred').checked;
+function runPreview(){
+  if(!autoOn)return;
+  previewTimer=setTimeout(()=>{
+    if(!autoOn||analyzing||cooldown){runPreview();return;}
+    if(!vstream||video.readyState<2){runPreview();return;}
     fallbackCount++;
-
-    if (useRedGate) {
-      const ratio = detectRed(video);
-      if (ratio >= RED_THRESHOLD) {
-        // 빨간색 감지 즉시 AI 분석
-        fallbackCount = 0; redFrameCount = 0;
-        document.getElementById('redring').classList.add('active');
-        setChk('chk-red', 'red');
-        setPill('scan', '빨간 문구 감지 → AI 분석 중...');
-        document.getElementById('sline').classList.add('go');
-        doAnalyze(captureHQ(), false);
-      } else {
-        // 빨간 미감지 — 4초(13프레임)마다 폴백 AI 호출
-        document.getElementById('redring').classList.remove('active');
-        if (!analyzing) {
-          if (fallbackCount >= 13) {
-            fallbackCount = 0;
-            setPill('scan', 'AI 분석 중...');
-            document.getElementById('sline').classList.add('go');
-            doAnalyze(captureHQ(), false);
-          } else {
-            setPill('idle', '식권 화면을 프레임에 비춰주세요');
-          }
-        }
-      }
+    const ratio=detectRed(video);
+    if(ratio>=0.001){
+      // 빨간색 감지 → 즉시 AI 분석
+      fallbackCount=0;redFrameCount=0;
+      document.getElementById('redring').classList.add('active');
+      setChk('chk-red','red');
+      setPill('scan','빨간 문구 감지 → AI 분석 중...');
+      document.getElementById('sline').classList.add('go');
+      doAnalyze(captureHQ(),false);
     } else {
-      // 빨간 감지 비활성 — 2.5초(8프레임)마다 AI 호출
-      if (fallbackCount >= 8) {
-        fallbackCount = 0;
-        setPill('scan', 'AI 분석 중...');
+      document.getElementById('redring').classList.remove('active');
+      // 빨간 미감지라도 4초(13프레임)마다 강제 AI 호출
+      if(fallbackCount>=13){
+        fallbackCount=0;
+        setPill('scan','AI 분석 중...');
         document.getElementById('sline').classList.add('go');
-        doAnalyze(captureHQ(), false);
+        doAnalyze(captureHQ(),false);
+      } else if(!analyzing){
+        setPill('idle','식권 화면을 프레임에 비춰주세요');
       }
     }
     runPreview();
-  }, 300);
+  },300);
 }
 
-function doManual() {
-  if (!vstream || video.readyState < 2) return;
-  stopAuto();
-  document.getElementById('anaov').style.display = 'flex';
-  doAnalyze(captureHQ(), true);
-}
+function doManual(){if(!vstream||video.readyState<2)return;stopAuto();document.getElementById('anaov').style.display='flex';doAnalyze(captureHQ(),true);}
+document.getElementById('finp').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{stopAuto();doAnalyze(ev.target.result,true);};r.readAsDataURL(f);e.target.value='';});
 
-document.getElementById('finp').addEventListener('change', e => {
-  const f = e.target.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => { stopAuto(); doAnalyze(ev.target.result, true); };
-  r.readAsDataURL(f); e.target.value = '';
-});
+// ══ AI ANALYSIS ═══════════════════════════════════
+async function doAnalyze(dataUrl,manual){
+  if(analyzing)return;
+  analyzing=true;
+  if(manual)document.getElementById('anaov').style.display='flex';
 
-// ════════════════════════════════════════════
-// AI ANALYSIS
-// ════════════════════════════════════════════
-async function doAnalyze(dataUrl, manual) {
-  if (analyzing) return;
-  analyzing = true;
-  if (manual) document.getElementById('anaov').style.display = 'flex';
-
-  // temp ticket time-slot pre-check
-  if (MODE === 'temp') {
-    if (!(TODAY >= tStart && TODAY <= tEnd)) {
-      endAnalyze(manual); snd('fail'); flashEl('fail');
-      showRes('fail','임시식권 유효기간 외',`유효기간: ${tStart} ~ ${tEnd}`,[],null);
-      addHist('-','fail',null); updStats('fail'); return;
-    }
-    if (tSlot !== 'all') {
-      const h = new Date().getHours();
-      const sl = {breakfast:[7,9],lunch:[11,13],dinner:[17,19]}[tSlot];
-      if (h < sl[0] || h >= sl[1]) {
-        endAnalyze(manual); snd('fail'); flashEl('fail');
-        const nm = {breakfast:'조식 07~09시',lunch:'중식 11~13시',dinner:'석식 17~19시'};
-        showRes('fail','사용 가능 시간이 아닙니다',`허용 시간대: ${nm[tSlot]}`,[],null);
-        addHist('-','fail',null); updStats('fail'); return;
-      }
-    }
+  // 임시식권 시간대 사전 검사
+  if(MODE==='temp'){
+    if(!(TODAY>=tStart&&TODAY<=tEnd)){endA(manual);snd('fail');flashEl('fail');showRes('fail','임시식권 유효기간 외',`유효기간: ${tStart} ~ ${tEnd}`,[],null);addHist('-','fail',null);updStats('fail');return;}
+    if(tSlot!=='all'){const h=new Date().getHours(),sl={breakfast:[7,9],lunch:[11,13],dinner:[17,19]}[tSlot];if(h<sl[0]||h>=sl[1]){endA(manual);snd('fail');flashEl('fail');const nm={breakfast:'조식 07~09시',lunch:'중식 11~13시',dinner:'석식 17~19시'};showRes('fail','사용 가능 시간이 아닙니다',`허용: ${nm[tSlot]}`,[],null);addHist('-','fail',null);updStats('fail');return;}}
   }
 
-  const b64 = dataUrl.split(',')[1];
-  const mt  = dataUrl.includes('png') ? 'image/png' : 'image/jpeg';
+  const b64=dataUrl.split(',')[1];
+  const mt=dataUrl.includes('png')?'image/png':'image/jpeg';
+  const apiKey=getApiKey();
 
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 700,
-        messages: [{
-          role: 'user',
-          content: [
-            {type:'image', source:{type:'base64', media_type:mt, data:b64}},
-            {type:'text', text:`이미지를 분석해서 아래 JSON만 반환하세요. 다른 텍스트 금지.
+  try{
+    // ★ Capacitor 네이티브 앱에서는 CORS 없이 직접 호출 가능
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:700,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mt,data:b64}},
+          {type:'text',text:`이미지를 분석해서 아래 JSON만 반환하세요. 다른 텍스트 금지.
 
-이 이미지는 스마트폰 식권 앱 화면을 태블릿 카메라로 촬영한 것입니다.
+이 이미지는 스마트폰 식권 앱 화면을 카메라로 촬영한 것입니다.
 화면이 약간 흐리거나 반사가 있어도 최대한 텍스트를 읽어주세요.
 
 【이 앱의 화면 구조】
-- 상단 헤더: "마이페이지" 텍스트 + "식권ID" 라벨 + ID값(영문+숫자, 예:C0149099)
+- 상단 헤더: "마이페이지" + "식권ID" 라벨 + ID값 (영문+숫자, 예: C0149099)
 - 날짜: "2026.03.16(월)" 형태 → YYYY-MM-DD로 변환
-- 종류 배지: "일반"(파란 배지) 또는 "한시적"(빨간 배지)
-- 빨간 텍스트 "사용완료": 식권 사용이 완료된 상태 표시
-- 메뉴명(예:을지-U-12), 식사종류(중식/조식/석식), 금액(원)
+- 종류 배지: "일반"(파란/검정 배지) 또는 "한시적"(빨간 배지)
+- 빨간 텍스트 "사용완료": 식권이 사용 완료된 상태
+- 메뉴명, 식사종류(중식/조식/석식), 금액
 
 【판단 기준】
-- 아래 중 하나라도 보이면 is_ticket=true: "식권ID", "사용완료", "일반", "한시적", "마이페이지", 날짜+금액 조합
-- is_ticket=false: 완전히 다른 앱/배경/사람 얼굴 등 식권과 무관한 화면
+- is_ticket=true: "식권ID", "사용완료", "일반", "한시적", "마이페이지", 날짜+금액 중 하나라도 보이면
+- is_ticket=false: 완전히 식권과 무관한 화면(다른 앱, 배경, 사람 등)
 
-【각 필드 추출】
-- has_used_mark: "사용완료" 텍스트(빨간색)가 보이면 true
-- ticket_category: "일반" 배지 → "일반", "한시적" 배지 → "한시적", 불분명하면 null
-- ticket_id: "식권ID" 옆 코드값 (예: C0149099). 없으면 null
-- ticket_date: 날짜 → YYYY-MM-DD. 없으면 null
-- meal_time: 중식/조식/석식 중 보이는 것. 없으면 null
-- ticket_type: 메뉴명 또는 식권 종류명. 없으면 null
-- amount: 금액 숫자만(원 제외). 없으면 null
-
-{"is_ticket":true/false,"has_used_mark":true/false,"ticket_category":"일반 or 한시적 or null","ticket_id":"ID or null","ticket_date":"YYYY-MM-DD or null","ticket_type":"메뉴명 or null","meal_time":"중식 or 조식 or 석식 or null","amount":"숫자만 or null","fail_reason":"식권 아닌 경우 이유, 아니면 null"}`}
-          ]
-        }]
+{"is_ticket":true/false,"has_used_mark":true/false,"ticket_category":"일반 or 한시적 or null","ticket_id":"ID값 or null","ticket_date":"YYYY-MM-DD or null","ticket_type":"메뉴명 or null","meal_time":"중식 or 조식 or 석식 or null","amount":"숫자만 or null","fail_reason":"식권 아닌 경우 이유 or null"}`}
+        ]}]
       })
     });
-    const data = await resp.json();
-    const txt  = (data.content||[]).map(b=>b.text||'').join('');
-    const info = JSON.parse(txt.replace(/```json|```/g,'').trim());
-    endAnalyze(manual);
-    procResult(info, manual);
-  } catch(err) {
-    endAnalyze(manual);
-    analyzing = false;
+    const data=await resp.json();
+    // API 오류 처리
+    if(data.error){throw new Error(data.error.message||'API 오류');}
+    const txt=(data.content||[]).map(b=>b.text||'').join('');
+    const info=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    endA(manual);procResult(info,manual);
+  }catch(err){
+    endA(manual);analyzing=false;
     document.getElementById('sline').classList.remove('go');
-    if (manual) { snd('fail'); showToast('분석 오류: 네트워크를 확인해주세요'); }
-    else setPill('idle', '분석 오류 — 잠시 후 재시도...');
-    resetUI();
-    if (!manual) startAuto();
+    const msg=err.message||'';
+    if(msg.includes('401')||msg.includes('invalid')||msg.includes('api_key')){
+      showToast('API 키 오류 — 설정에서 키를 확인해주세요');
+      stopAuto();backSetup();
+    } else if(manual){
+      snd('fail');showToast('분석 오류: 네트워크를 확인해주세요');
+    } else {
+      setPill('idle','분석 오류 — 잠시 후 재시도...');
+    }
+    resetUI();if(!manual)startAuto();
   }
 }
-function endAnalyze(manual) {
-  if (manual) document.getElementById('anaov').style.display = 'none';
-  document.getElementById('sline').classList.remove('go');
-}
+function endA(manual){if(manual)document.getElementById('anaov').style.display='none';document.getElementById('sline').classList.remove('go');}
 
-// ════════════════════════════════════════════
-// PROCESS RESULT
-// ════════════════════════════════════════════
-function procResult(info, manual) {
-  analyzing = false;
+// ══ PROCESS RESULT ════════════════════════════════
+function procResult(info,manual){
+  analyzing=false;
+  const hasAny=info.is_ticket||info.ticket_id||info.ticket_date||info.has_used_mark;
+  const hasAll=info.has_used_mark&&info.ticket_id&&info.ticket_date;
 
-  // 1. 식권 화면 여부 판단
-  // hasAll(3가지 모두) → 정상 처리
-  // hasAny(일부만) → 식권 맞는데 일부 미인식 → 힌트 후 재시도
-  // 아무것도 없음 → 식권 아닌 화면 → 무시
-  const hasAny = info.is_ticket || info.ticket_id || info.ticket_date || info.has_used_mark;
-  const hasAll = info.has_used_mark && info.ticket_id && info.ticket_date;
-
-  if (!hasAny) {
-    if (!manual) { setPill('idle', '식권 화면을 프레임에 비춰주세요'); resetUI(); startAuto(); }
-    else { snd('fail'); flashEl('fail'); showRes('fail','식권 화면 인식 실패',info.fail_reason||'식권 화면을 정면으로 비춰주세요',[],null); addHist('-','fail',info); updStats('fail'); }
+  if(!hasAny){
+    if(!manual){setPill('idle','식권 화면을 프레임에 비춰주세요');resetUI();startAuto();}
+    else{snd('fail');flashEl('fail');showRes('fail','식권 화면 인식 실패',info.fail_reason||'식권 화면을 정면으로 비춰주세요',[],null);addHist('-','fail',info);updStats('fail');}
     return;
   }
 
-  // 2. 사용완료 체크 표시
-  setChk('chk-red', info.has_used_mark ? 'green' : null);
-
-  // 3. 식권 종류 불일치
-  const detected = classifyTicketType(info.ticket_category);
-  let typeOk = true, typeMsg = '';
-  if (detected !== 'unknown') {
-    if (MODE === 'normal' && detected === 'temp') { typeOk = false; typeMsg = '이 단말기는 일반식권 전용입니다.\n인식된 식권: 한시적 임시식권 → 승인 불가'; }
-    else if (MODE === 'temp' && detected === 'normal') { typeOk = false; typeMsg = '이 단말기는 한시적 임시식권 전용입니다.\n인식된 식권: 일반식권 → 승인 불가'; }
+  setChk('chk-red',info.has_used_mark?'green':null);
+  const det=classifyType(info.ticket_category);
+  let typeOk=true,typeMsg='';
+  if(det!=='unknown'){
+    if(MODE==='normal'&&det==='temp'){typeOk=false;typeMsg='이 단말기는 일반식권 전용입니다.\n인식된 식권: 한시적 임시식권 → 승인 불가';}
+    else if(MODE==='temp'&&det==='normal'){typeOk=false;typeMsg='이 단말기는 한시적 임시식권 전용입니다.\n인식된 식권: 일반식권 → 승인 불가';}
   }
-  if (detected === 'unknown') setChk('chk-type', null);
-  else if (!typeOk) setChk('chk-type', 'bad');
-  else setChk('chk-type', 'green');
-  setChk('chk-id', !!info.ticket_id);
-  setChk('chk-date', !!info.ticket_date);
+  if(det==='unknown')setChk('chk-type',null);
+  else if(!typeOk)setChk('chk-type','bad');
+  else setChk('chk-type','green');
+  setChk('chk-id',!!info.ticket_id);
+  setChk('chk-date',!!info.ticket_date);
 
-  if (!typeOk) {
-    snd('mm'); flashEl('mm');
-    setPill('mismatch', '식권 종류 불일치 — 승인 거부');
-    const rows = [];
-    if (info.ticket_category) rows.push(['인식된 종류', info.ticket_category]);
-    if (info.ticket_id) rows.push(['식권 ID', info.ticket_id]);
-    if (info.ticket_date) rows.push(['식권 날짜', info.ticket_date]);
-    showRes('mm', '식권 종류 불일치', '이 단말기에서 사용할 수 없는 식권입니다', rows, typeMsg);
-    addHist(info.ticket_id||'- ', 'mm', info); updStats('mm'); setCooldown(4000); return;
+  if(!typeOk){
+    snd('mm');flashEl('mm');setPill('mismatch','식권 종류 불일치 — 승인 거부');
+    const rows=[];
+    if(info.ticket_category)rows.push(['인식된 종류',info.ticket_category]);
+    if(info.ticket_id)rows.push(['식권 ID',info.ticket_id]);
+    if(info.ticket_date)rows.push(['식권 날짜',info.ticket_date]);
+    showRes('mm','식권 종류 불일치','이 단말기에서 사용할 수 없는 식권입니다',rows,typeMsg);
+    addHist(info.ticket_id||'-','mm',info);updStats('mm');setCooldown(4000);return;
   }
 
-  // 4. 3가지 필수값 모두 확인 (has_used_mark + ticket_id + ticket_date)
-  if (!hasAll) {
-    const missingFields = [];
-    if (!info.has_used_mark) missingFields.push('"사용완료"');
-    if (!info.ticket_id)     missingFields.push('식권ID');
-    if (!info.ticket_date)   missingFields.push('날짜');
-    if (!manual) {
-      // 자동모드: 식권 화면은 맞는데 일부 안 읽힘 — 힌트 표시 후 4초 폴백에서 재시도
-      setPill('scan', '인식 중 — ' + missingFields.join(' · ') + ' 미확인');
+  if(!hasAll){
+    const miss=[];
+    if(!info.has_used_mark)miss.push('"사용완료"');
+    if(!info.ticket_id)miss.push('식권ID');
+    if(!info.ticket_date)miss.push('날짜');
+    if(!manual){
+      setPill('scan','인식 중 — '+miss.join(' · ')+' 미확인');
       startAuto();
     } else {
-      // 수동모드: 구체적 오류 표시
-      snd('fail'); flashEl('fail');
-      showRes('fail', '식권 정보를 읽지 못했습니다',
-        '미인식 항목: ' + missingFields.join(', ') + '\n더 가까이, 정면으로 비춰주세요',
-        [
-          ['사용완료', info.has_used_mark ? '✓ 확인' : '✗ 미확인'],
-          ['식권 ID',  info.ticket_id    || '✗ 미확인'],
-          ['날짜',     info.ticket_date  || '✗ 미확인'],
-        ], null);
-      addHist('-', 'fail', info); updStats('fail');
+      snd('fail');flashEl('fail');
+      showRes('fail','식권 정보를 읽지 못했습니다',
+        '미인식: '+miss.join(', ')+'\n더 가까이, 정면으로 비춰주세요',
+        [['사용완료',info.has_used_mark?'✓':'✗'],['식권 ID',info.ticket_id||'✗'],['날짜',info.ticket_date||'✗']],null);
+      addHist('-','fail',info);updStats('fail');
     }
     return;
   }
 
-  // 5. 날짜 유효성
-  const td = info.ticket_date;
-  if (MODE === 'normal' && td !== TODAY) {
-    snd('fail'); flashEl('fail');
-    showRes('fail', '오늘 날짜 식권이 아닙니다', '식권 날짜: ' + td + '\n오늘: ' + TODAY, [], null);
-    addHist(info.ticket_id, 'fail', info); updStats('fail'); setCooldown(3000); return;
-  }
-  if (MODE === 'temp' && (td < tStart || td > tEnd)) {
-    snd('fail'); flashEl('fail');
-    showRes('fail', '유효기간 외 식권', '식권 날짜: ' + td + '\n유효기간: ' + tStart + ' ~ ' + tEnd, [], null);
-    addHist(info.ticket_id, 'fail', info); updStats('fail'); setCooldown(3000); return;
-  }
+  // 날짜 유효성
+  const td=info.ticket_date;
+  if(MODE==='normal'&&td!==TODAY){snd('fail');flashEl('fail');showRes('fail','오늘 날짜 식권이 아닙니다','식권: '+td+' / 오늘: '+TODAY,[],null);addHist(info.ticket_id,'fail',info);updStats('fail');setCooldown(3000);return;}
+  if(MODE==='temp'&&(td<tStart||td>tEnd)){snd('fail');flashEl('fail');showRes('fail','유효기간 외 식권','식권: '+td+' / 유효: '+tStart+'~'+tEnd,[],null);addHist(info.ticket_id,'fail',info);updStats('fail');setCooldown(3000);return;}
 
-  // 6. 중복 검사
-  if (usedIds.has(info.ticket_id)) {
-    snd('dup'); flashEl('dup');
-    setPill('dup', '중복 사용 — ' + info.ticket_id);
-    showRes('dup', '이미 사용된 식권', '식권 ID ' + info.ticket_id + ' — 오늘 이미 승인됨',
-      [['식권 ID', info.ticket_id],['식권 날짜', td]], null);
-    addHist(info.ticket_id, 'dup', info); updStats('dup'); setCooldown(4000); return;
-  }
+  // 중복
+  if(usedIds.has(info.ticket_id)){snd('dup');flashEl('dup');setPill('dup','중복 사용 — '+info.ticket_id);showRes('dup','이미 사용된 식권','식권 ID '+info.ticket_id+' — 오늘 이미 승인됨',[['식권 ID',info.ticket_id],['날짜',td]],null);addHist(info.ticket_id,'dup',info);updStats('dup');setCooldown(4000);return;}
 
-  // 7. 최종 승인 ✅
+  // ✅ 승인
   usedIds.add(info.ticket_id);
-  const ts = new Date().toTimeString().slice(0, 5);
-  snd('ok'); flashEl('ok');
-  setPill('ok', '승인 완료 ✓  ' + info.ticket_id);
-  const rows = [
-    ['식권 종류', info.ticket_category || (MODE === 'temp' ? '한시적' : '일반')],
-    ['식권 ID', info.ticket_id],
-    ['식권 날짜', td],
-  ];
-  if (info.meal_time) rows.push(['식사', info.meal_time]);
-  if (info.ticket_type) rows.push(['메뉴', info.ticket_type]);
-  if (info.amount) rows.push(['금액', parseInt(info.amount).toLocaleString('ko-KR') + '원']);
-  rows.push(['승인 시각', ts]);
-  showRes('ok', '식권 확인 완료', (MODE === 'temp' ? '임시식권' : '일반식권') + ' — ' + td + ' 승인', rows, null);
-  addHist(info.ticket_id, 'ok', info); updStats('ok'); saveAll();
-  setCooldown(4000);
+  const ts=new Date().toTimeString().slice(0,5);
+  snd('ok');flashEl('ok');setPill('ok','승인 완료 ✓  '+info.ticket_id);
+  const rows=[['식권 종류',info.ticket_category||(MODE==='temp'?'한시적':'일반')],['식권 ID',info.ticket_id],['식권 날짜',td]];
+  if(info.meal_time)rows.push(['식사',info.meal_time]);
+  if(info.ticket_type)rows.push(['메뉴',info.ticket_type]);
+  if(info.amount)rows.push(['금액',parseInt(info.amount).toLocaleString('ko-KR')+'원']);
+  rows.push(['승인 시각',ts]);
+  showRes('ok','식권 확인 완료',(MODE==='temp'?'임시식권':'일반식권')+' — '+td+' 승인',rows,null);
+  addHist(info.ticket_id,'ok',info);updStats('ok');saveAll();setCooldown(4000);
 }
-function setCooldown(ms = 3000) {
-  cooldown = true;
-  setTimeout(() => { cooldown = false; resetUI(); }, ms);
-}
+function setCooldown(ms=3000){cooldown=true;setTimeout(()=>{cooldown=false;resetUI();},ms);}
 
-// ════════════════════════════════════════════
-// RESULT SHEET
-// ════════════════════════════════════════════
-function showRes(type, statusTxt, msgTxt, rows, mismatchNote) {
-  // type: 'ok' | 'dup' | 'mm' | 'fail'
-  const cfg = {
-    ok:   {e:'✓', bg:'rgba(34,197,94,.15)',  bd:'rgba(34,197,94,.4)',  c:'var(--green)', rp:'rpok'},
-    dup:  {e:'✕', bg:'rgba(239,68,68,.15)',  bd:'rgba(239,68,68,.4)', c:'var(--red)',   rp:'rpdup'},
-    mm:   {e:'⊘', bg:'rgba(168,85,247,.15)', bd:'rgba(168,85,247,.4)',c:'var(--purple)',rp:'rpmm'},
-    fail: {e:'!', bg:'rgba(245,158,11,.15)', bd:'rgba(245,158,11,.4)',c:'var(--amber)', rp:'rpok'},
-  }[type] || {e:'!', bg:'rgba(245,158,11,.15)', bd:'rgba(245,158,11,.4)',c:'var(--amber)',rp:'rpok'};
+// ══ UI ═══════════════════════════════════════════
+function showRes(type,statusTxt,msgTxt,rows,mmNote){
+  const cfg={ok:{e:'✓',bg:'rgba(34,197,94,.15)',bd:'rgba(34,197,94,.4)',c:'var(--green)',rp:'rpok'},dup:{e:'✕',bg:'rgba(239,68,68,.15)',bd:'rgba(239,68,68,.4)',c:'var(--red)',rp:'rpdup'},mm:{e:'⊘',bg:'rgba(168,85,247,.15)',bd:'rgba(168,85,247,.4)',c:'var(--purple)',rp:'rpmm'},fail:{e:'!',bg:'rgba(245,158,11,.15)',bd:'rgba(245,158,11,.4)',c:'var(--amber)',rp:'rpok'}}[type]||{e:'!',bg:'rgba(245,158,11,.15)',bd:'rgba(245,158,11,.4)',c:'var(--amber)',rp:'rpok'};
+  const icon=document.getElementById('rl-icon');
+  icon.style.cssText=`width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:38px;background:${cfg.bg};border:2px solid ${cfg.bd}`;
+  icon.textContent=cfg.e;icon.className=cfg.rp;setTimeout(()=>icon.className='',800);
+  document.getElementById('rl-status').style.color=cfg.c;
+  document.getElementById('rl-status').textContent=statusTxt;
+  document.getElementById('rl-msg').textContent=msgTxt;
+  const mmEl=document.getElementById('rl-mismatch');
+  if(mmNote){document.getElementById('mm-txt').textContent=mmNote;mmEl.style.display='block';}else mmEl.style.display='none';
+  document.getElementById('rl-info').innerHTML=rows.length?`<div style="padding:0 20px 16px">${rows.map(([k,v])=>`<div class="ir"><span class="ik">${k}</span><span class="iv">${v}</span></div>`).join('')}</div>`:'';
+  document.getElementById('rlov').style.display='flex';
+  requestAnimationFrame(()=>document.getElementById('rlsh').classList.add('open'));
+  if(autoOn)stopAuto();
+}
+function closeRes(){document.getElementById('rlsh').classList.remove('open');setTimeout(()=>{document.getElementById('rlov').style.display='none';resetUI();startAuto();},350);}
+document.getElementById('rlov').addEventListener('click',e=>{if(e.target===document.getElementById('rlov'))closeRes();});
 
-  const icon = document.getElementById('rl-icon');
-  icon.style.cssText = `width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:38px;background:${cfg.bg};border:2px solid ${cfg.bd}`;
-  icon.textContent = cfg.e;
-  icon.className = cfg.rp; setTimeout(() => icon.className='', 800);
+function setPill(type,txt){const p=document.getElementById('spill');p.textContent=txt;const m={idle:'p-idle',red:'p-red',scan:'p-scan',ok:'p-ok',dup:'p-dup',mismatch:'p-mismatch',fail:'p-fail'};p.className=m[type]||'p-idle';}
+function setChk(id,state){const el=document.getElementById(id);el.classList.remove('lit','lit-red','lit-bad');if(state==='green')el.classList.add('lit');else if(state==='red')el.classList.add('lit-red');else if(state==='bad')el.classList.add('lit-bad');}
+function resetUI(){['chk-red','chk-type','chk-id','chk-date'].forEach(id=>setChk(id,null));document.getElementById('redring').classList.remove('active');redFrameCount=0;fallbackCount=0;}
+function flashEl(type){const f=document.getElementById('flash');f.className='f'+type;setTimeout(()=>f.className='',650);}
 
-  document.getElementById('rl-status').style.color = cfg.c;
-  document.getElementById('rl-status').textContent = statusTxt;
-  document.getElementById('rl-msg').textContent     = msgTxt;
+// ══ HISTORY ══════════════════════════════════════
+function addHist(id,status,info){const n=new Date();scanHist.unshift({id:Date.now(),tid:id||'-',status,time:n.toTimeString().slice(0,5),cat:info?.ticket_category||null,tt:info?.ticket_type||null,amt:info?.amount?parseInt(info.amount).toLocaleString('ko-KR')+'원':null,mode:MODE});if(scanHist.length>200)scanHist=scanHist.slice(0,200);}
+function openHist(){renderHL();document.getElementById('histov').style.display='flex';}
+function closeHist(){document.getElementById('histov').style.display='none';}
+function setF(el,f){cFilter=f;document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderHL();}
+function renderHL(){const list=document.getElementById('histlist');const fl=cFilter==='all'?scanHist:scanHist.filter(h=>h.status===cFilter);if(!fl.length){list.innerHTML='<div id="hempty">인식 기록이 없습니다</div>';return;}const tl={ok:'PASS',dup:'DUP',mm:'TYPE',fail:'FAIL'};list.innerHTML=fl.map(h=>`<div class="hi"><div class="hdot d${h.status}"></div><div class="hbody"><div class="hid">${h.tid}</div><div class="hmeta">${h.time}${h.cat?' · '+h.cat:''}${h.tt?' · '+h.tt:''}${h.amt?' · '+h.amt:''} · ${h.mode==='temp'?'임시':'일반'}</div></div><span class="htag t${h.status}">${tl[h.status]||h.status}</span></div>`).join('');}
 
-  // mismatch note block
-  const mmEl = document.getElementById('rl-mismatch');
-  if (mismatchNote) {
-    document.getElementById('mm-body-txt').textContent = mismatchNote;
-    mmEl.style.display = 'block';
-  } else {
-    mmEl.style.display = 'none';
-  }
-
-  document.getElementById('rl-info').innerHTML = rows.length
-    ? `<div style="padding:0 20px 16px">${rows.map(([k,v,bad])=>`<div class="ir"><span class="ik">${k}</span><span class="iv${bad?' iv-bad':''}">${v}</span></div>`).join('')}</div>`
-    : '';
-
-  document.getElementById('rlov').style.display = 'flex';
-  requestAnimationFrame(() => document.getElementById('rlsh').classList.add('open'));
-  if (autoOn) stopAuto();
-}
-function closeRes() {
-  document.getElementById('rlsh').classList.remove('open');
-  setTimeout(() => {
-    document.getElementById('rlov').style.display = 'none';
-    resetUI(); startAuto();
-  }, 350);
-}
-document.getElementById('rlov').addEventListener('click', e => {
-  if (e.target === document.getElementById('rlov')) closeRes();
-});
-
-// ════════════════════════════════════════════
-// UI HELPERS
-// ════════════════════════════════════════════
-function setPill(type, txt) {
-  const p = document.getElementById('spill');
-  p.textContent = txt;
-  const map = {idle:'p-idle',red:'p-red',scan:'p-scan',ok:'p-ok',dup:'p-dup',mismatch:'p-mismatch',fail:'p-fail'};
-  p.className = map[type] || 'p-idle';
-}
-// state: 'green' | 'red' | 'bad' | null(off)
-function setChk(id, state) {
-  const el = document.getElementById(id);
-  el.classList.remove('lit','lit-red','lit-bad');
-  if (state === 'green') el.classList.add('lit');
-  else if (state === 'red')  el.classList.add('lit-red');
-  else if (state === 'bad')  el.classList.add('lit-bad');
-}
-function resetUI() {
-  ['chk-red','chk-type','chk-id','chk-date'].forEach(id => setChk(id, null));
-  document.getElementById('redring').classList.remove('active');
-  redFrameCount = 0; fallbackCount = 0;
-  const f = document.getElementById('flash');
-  f.className = 'f'+type; setTimeout(() => f.className='', 650);
-}
-
-// ════════════════════════════════════════════
-// HISTORY
-// ════════════════════════════════════════════
-function addHist(id, status, info) {
-  const n = new Date();
-  scanHist.unshift({
-    id: Date.now(), tid: id||'-', status,
-    time: n.toTimeString().slice(0,5),
-    cat: info?.ticket_category || null,
-    tt:  info?.ticket_type     || null,
-    amt: info?.amount ? parseInt(info.amount).toLocaleString('ko-KR')+'원' : null,
-    mode: MODE
-  });
-  if (scanHist.length > 200) scanHist = scanHist.slice(0,200);
-}
-function openHist()  { renderHL(); document.getElementById('histov').style.display='flex'; }
-function closeHist() { document.getElementById('histov').style.display='none'; }
-function setF(el, f) {
-  cFilter = f;
-  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
-  el.classList.add('on'); renderHL();
-}
-function renderHL() {
-  const list = document.getElementById('histlist');
-  const fl = cFilter==='all' ? scanHist : scanHist.filter(h => h.status===cFilter);
-  if (!fl.length) { list.innerHTML='<div id="hempty">인식 기록이 없습니다</div>'; return; }
-  const tagLabel = {ok:'PASS',dup:'DUP',mm:'TYPE',fail:'FAIL'};
-  list.innerHTML = fl.map(h => `
-    <div class="hi">
-      <div class="hdot d${h.status}"></div>
-      <div class="hbody">
-        <div class="hid">${h.tid}</div>
-        <div class="hmeta">${h.time}${h.cat?' · '+h.cat:''}${h.tt?' · '+h.tt:''}${h.amt?' · '+h.amt:''} · ${h.mode==='temp'?'임시':'일반'}</div>
-      </div>
-      <span class="htag t${h.status}">${tagLabel[h.status]||h.status}</span>
-    </div>`).join('');
-}
-
-// ════════════════════════════════════════════
-// STATS & TOAST
-// ════════════════════════════════════════════
-function updStats(t) { stats[t]=(stats[t]||0)+1; renderStats(); }
-function renderStats() {
-  document.getElementById('cok').textContent   = stats.ok||0;
-  document.getElementById('cdup').textContent  = stats.dup||0;
-  document.getElementById('cmm').textContent   = stats.mm||0;
-  document.getElementById('cfail').textContent = stats.fail||0;
-}
-function showToast(m) {
-  const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 2800);
-}
-
-// ════════════════════════════════════════════
-// PWA
-// ════════════════════════════════════════════
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-if (!localStorage.getItem('pwa_shown') && !window.navigator.standalone) {
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent))
-    setTimeout(()=>{ showToast('공유 → 홈 화면에 추가하면 앱처럼 사용할 수 있어요'); localStorage.setItem('pwa_shown','1'); }, 2500);
-}
+// ══ STATS & TOAST ════════════════════════════════
+function updStats(t){stats[t]=(stats[t]||0)+1;renderStats();}
+function renderStats(){document.getElementById('cok').textContent=stats.ok||0;document.getElementById('cdup').textContent=stats.dup||0;document.getElementById('cmm').textContent=stats.mm||0;document.getElementById('cfail').textContent=stats.fail||0;}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 </script>
 </body>
 </html>
