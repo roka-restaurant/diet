@@ -574,8 +574,9 @@ let usedIds = new Set(), scanHist = [], stats = {ok:0, dup:0, mm:0, fail:0};
 let vstream = null, cFilter = 'all';
 let autoOn = false, previewTimer = null, analyzing = false, cooldown = false;
 let redFrameCount = 0;
-const RED_THRESHOLD = 0.004;
-const RED_CONFIRM  = 2;
+const RED_THRESHOLD = 0.001; // 0.1% — 작은 빨간 텍스트도 감지 (기존 0.4%에서 4배 민감)
+const RED_CONFIRM  = 1;      // 1프레임만 감지돼도 즉시 분석 (기존 2)
+let fallbackCount = 0;       // 빨간 감지 없어도 N초마다 강제 AI 호출
 const TODAY = new Date().toISOString().slice(0, 10);
 
 // ── ticket-type keyword maps ──────────────────
@@ -734,7 +735,7 @@ function stopAuto() {
   document.getElementById('sline').classList.remove('go');
   document.getElementById('redring').classList.remove('active');
   setPill('idle', '자동 인식이 중지되었습니다');
-  redFrameCount = 0;
+  redFrameCount = 0; fallbackCount = 0;
 }
 function toggleAuto() { if (autoOn) stopAuto(); else startAuto(); }
 function updateAutoBtn() {
@@ -755,31 +756,36 @@ function runPreview() {
     if (!vstream || video.readyState < 2) { runPreview(); return; }
 
     const useRedGate = document.getElementById('tred').checked;
+    fallbackCount++;
 
     if (useRedGate) {
       const ratio = detectRed(video);
       if (ratio >= RED_THRESHOLD) {
-        redFrameCount++;
+        // 빨간색 감지 즉시 AI 분석
+        fallbackCount = 0; redFrameCount = 0;
         document.getElementById('redring').classList.add('active');
         setChk('chk-red', 'red');
-        if (redFrameCount >= RED_CONFIRM) {
-          redFrameCount = 0;
-          setPill('scan', '빨간 문구 감지 → AI 분석 중...');
-          document.getElementById('sline').classList.add('go');
-          doAnalyze(captureHQ(), false);
-        } else {
-          setPill('red', '빨간 문구 감지 중...');
-        }
+        setPill('scan', '빨간 문구 감지 → AI 분석 중...');
+        document.getElementById('sline').classList.add('go');
+        doAnalyze(captureHQ(), false);
       } else {
-        redFrameCount = 0;
+        // 빨간 미감지 — 4초(13프레임)마다 폴백 AI 호출
         document.getElementById('redring').classList.remove('active');
-        if (!analyzing) { setPill('idle', '식권 화면을 프레임에 비춰주세요'); resetUI(); }
+        if (!analyzing) {
+          if (fallbackCount >= 13) {
+            fallbackCount = 0;
+            setPill('scan', 'AI 분석 중...');
+            document.getElementById('sline').classList.add('go');
+            doAnalyze(captureHQ(), false);
+          } else {
+            setPill('idle', '식권 화면을 프레임에 비춰주세요');
+          }
+        }
       }
     } else {
-      // No red gate — API every ~2.5s (8 × 300ms)
-      redFrameCount++;
-      if (redFrameCount >= 8) {
-        redFrameCount = 0;
+      // 빨간 감지 비활성 — 2.5초(8프레임)마다 AI 호출
+      if (fallbackCount >= 8) {
+        fallbackCount = 0;
         setPill('scan', 'AI 분석 중...');
         document.getElementById('sline').classList.add('go');
         doAnalyze(captureHQ(), false);
@@ -1081,9 +1087,7 @@ function setChk(id, state) {
 function resetUI() {
   ['chk-red','chk-type','chk-id','chk-date'].forEach(id => setChk(id, null));
   document.getElementById('redring').classList.remove('active');
-  redFrameCount = 0;
-}
-function flashEl(type) {
+  redFrameCount = 0; fallbackCount = 0;
   const f = document.getElementById('flash');
   f.className = 'f'+type; setTimeout(() => f.className='', 650);
 }
